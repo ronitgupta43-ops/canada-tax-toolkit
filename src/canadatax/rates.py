@@ -36,5 +36,14 @@ ONTARIO = {
         "credit_rate": 0.0505,
         # surtax is charged on basic Ontario tax, not on income
         "surtax": [(5_818, 0.20), (7_446, 0.36)],
+        # Ontario Health Premium: (threshold, rate, base, cap)
+        # Source: Ontario Taxation Act, 2007; CRA form ON428
+        "health_premium": [
+            (20_000, 0.06, 0, 300),
+            (36_000, 0.06, 300, 450),
+            (48_000, 0.25, 450, 600),
+            (72_000, 0.25, 600, 750),
+            (200_000, 0.25, 750, 900),
+        ],
     },
 }
