@@ -54,13 +54,16 @@ def ontario_surtax(basic_tax, year=2026):
 
 
 def ontario_tax(taxable_income, year=2026):
-    """Ontario tax including surtax.
+    """Ontario tax including surtax, after the low-income tax reduction.
 
     The Ontario Health Premium is calculated separately.
-    Not yet included: Ontario tax reduction (low income). See README roadmap.
     """
+    r = _rates(ONTARIO, year)
     basic = ontario_basic_tax(taxable_income, year)
-    return round(basic + ontario_surtax(basic, year), 2)
+    tax = basic + ontario_surtax(basic, year)
+    reduction = max(0, 2 * r["tax_reduction"] - tax)
+    reduction = min(reduction, tax)
+    return round(tax - reduction, 2)
 
 
 def ontario_health_premium(taxable_income, year=2026):
