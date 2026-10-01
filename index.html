@@ -294,7 +294,9 @@
     }
   }
 
-  sizeInput();
+    sizeInput();
+  if (document.fonts) document.fonts.ready.then(sizeInput);
+  window.addEventListener("load", sizeInput);
   start();
 </script>
 </body>
