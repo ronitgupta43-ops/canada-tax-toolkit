@@ -36,6 +36,9 @@ ONTARIO = {
         "credit_rate": 0.0505,
         # surtax is charged on basic Ontario tax, not on income
         "surtax": [(5_818, 0.20), (7_446, 0.36)],
+        # Ontario tax reduction (low income), basic amount for an individual
+        # Source: CRA form ON428, Part C; EY Ontario Budget 2026 summary
+        "tax_reduction": 300,
         # Ontario Health Premium: (threshold, rate, base, cap)
         # Source: Ontario Taxation Act, 2007; CRA form ON428
         "health_premium": [
