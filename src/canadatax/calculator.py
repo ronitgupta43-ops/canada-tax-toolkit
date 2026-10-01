@@ -56,24 +56,40 @@ def ontario_surtax(basic_tax, year=2026):
 def ontario_tax(taxable_income, year=2026):
     """Ontario tax including surtax.
 
-    Not yet included: Ontario tax reduction (low income) and
-    Ontario Health Premium. See README roadmap.
+    The Ontario Health Premium is calculated separately.
+    Not yet included: Ontario tax reduction (low income). See README roadmap.
     """
     basic = ontario_basic_tax(taxable_income, year)
     return round(basic + ontario_surtax(basic, year), 2)
+
+
+def ontario_health_premium(taxable_income, year=2026):
+    """Ontario Health Premium: $0 up to $900, based on taxable income.
+
+    Each level ramps up at a rate above its threshold, then flattens at a cap.
+    """
+    r = _rates(ONTARIO, year)
+    premium = 0.0
+    for threshold, rate, base, cap in r["health_premium"]:
+        if taxable_income > threshold:
+            premium = min(cap, base + rate * (taxable_income - threshold))
+    return round(premium, 2)
 
 
 def total_tax(taxable_income, year=2026):
     """Summary of federal + Ontario tax for one income."""
     fed = federal_tax(taxable_income, year)
     on = ontario_tax(taxable_income, year)
-    total = round(fed + on, 2)
-    next_dollar = federal_tax(taxable_income + 100, year) + ontario_tax(taxable_income + 100, year)
+    ohp = ontario_health_premium(taxable_income, year)
+    total = round(fed + on + ohp, 2)
+    nxt = taxable_income + 100
+    next_dollar = federal_tax(nxt, year) + ontario_tax(nxt, year) + ontario_health_premium(nxt, year)
     return {
         "year": year,
         "income": taxable_income,
         "federal": fed,
         "ontario": on,
+        "ontario_health_premium": ohp,
         "total": total,
         "after_tax_income": round(taxable_income - total, 2),
         "average_rate": round(total / taxable_income, 4) if taxable_income else 0.0,
