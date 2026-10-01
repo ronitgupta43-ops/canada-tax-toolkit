@@ -15,6 +15,7 @@ def main():
     print(f"Taxable income:    ${r['income']:>12,.2f}")
     print(f"Federal tax:       ${r['federal']:>12,.2f}")
     print(f"Ontario tax:       ${r['ontario']:>12,.2f}")
+    print(f"Health premium:    ${r['ontario_health_premium']:>12,.2f}")
     print(f"Total tax:         ${r['total']:>12,.2f}")
     print(f"After-tax income:  ${r['after_tax_income']:>12,.2f}")
     print(f"Average rate:      {r['average_rate']:>12.2%}")
