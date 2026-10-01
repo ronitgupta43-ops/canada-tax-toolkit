@@ -3,6 +3,7 @@
 Simple, transparent Python tools for Canadian personal income tax — starting with **federal + Ontario** for the **2026** tax year.
 
 Every rate lives in one readable file (`src/canadatax/rates.py`), and every calculation is tested against published worked examples.
+**👉 Try it online: [ronitgupta43-ops.github.io/canada-tax-toolkit](https://ronitgupta43-ops.github.io/canada-tax-toolkit/)**
 
 ## Quick start
 
@@ -24,6 +25,8 @@ print(total_tax(75_000))
 - 2026 Ontario brackets, basic personal amount and two-tier surtax
 - Average and marginal tax rates
 - Command-line tool
+- Ontario low-income tax reduction and Ontario Health Premium
+- Free web calculator that runs in your browser
 
 ## Roadmap — contributions welcome!
 
