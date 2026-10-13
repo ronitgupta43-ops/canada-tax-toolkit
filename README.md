@@ -10,7 +10,7 @@ Every rate lives in one readable file (`src/canadatax/rates.py`), and every calc
 ```bash
 git clone https://github.com/ronitgupta43-ops/canada-tax-toolkit.git
 cd canada-tax-toolkit
-pip install -e .
+pip install canada-tax-toolkit
 python -m canadatax 75000
 ```
 
