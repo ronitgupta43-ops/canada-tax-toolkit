@@ -1,6 +1,6 @@
 """Federal and Ontario personal income tax calculator."""
 
-from .rates import FEDERAL, ONTARIO
+from .rates import FEDERAL, ONTARIO, PAYROLL
 
 
 def _rates(table, year):
@@ -32,19 +32,23 @@ def federal_bpa(net_income, year=2026):
     return r["bpa_min"] + extra * (end - net_income) / (end - start)
 
 
-def federal_tax(taxable_income, year=2026):
-    """Basic federal tax after the basic personal amount credit."""
+def federal_tax(taxable_income, year=2026, other_credits=0):
+    """Basic federal tax after the basic personal amount credit.
+
+    other_credits: extra credit amounts (like base CPP and EI) that earn
+    a credit at the same rate as the basic personal amount.
+    """
     r = _rates(FEDERAL, year)
     gross = bracket_tax(taxable_income, r["brackets"])
-    credit = federal_bpa(taxable_income, year) * r["credit_rate"]
+    credit = (federal_bpa(taxable_income, year) + other_credits) * r["credit_rate"]
     return round(max(0.0, gross - credit), 2)
 
 
-def ontario_basic_tax(taxable_income, year=2026):
-    """Ontario tax after the basic personal amount credit, before surtax."""
+def ontario_basic_tax(taxable_income, year=2026, other_credits=0):
+    """Ontario tax after non-refundable credits, before surtax."""
     r = _rates(ONTARIO, year)
     gross = bracket_tax(taxable_income, r["brackets"])
-    credit = r["bpa"] * r["credit_rate"]
+    credit = (r["bpa"] + other_credits) * r["credit_rate"]
     return max(0.0, gross - credit)
 
 
@@ -53,13 +57,13 @@ def ontario_surtax(basic_tax, year=2026):
     return sum(max(0.0, basic_tax - t) * rate for t, rate in r["surtax"])
 
 
-def ontario_tax(taxable_income, year=2026):
+def ontario_tax(taxable_income, year=2026, other_credits=0):
     """Ontario tax including surtax, after the low-income tax reduction.
 
     The Ontario Health Premium is calculated separately.
     """
     r = _rates(ONTARIO, year)
-    basic = ontario_basic_tax(taxable_income, year)
+    basic = ontario_basic_tax(taxable_income, year, other_credits)
     tax = basic + ontario_surtax(basic, year)
     reduction = max(0, 2 * r["tax_reduction"] - tax)
     reduction = min(reduction, tax)
@@ -79,14 +83,42 @@ def ontario_health_premium(taxable_income, year=2026):
     return round(premium, 2)
 
 
-def total_tax(taxable_income, year=2026):
-    """Summary of federal + Ontario tax for one income."""
-    fed = federal_tax(taxable_income, year)
-    on = ontario_tax(taxable_income, year)
+def cpp_contributions(employment_income, year=2026):
+    """Employee CPP and CPP2 contributions on employment income.
+
+    Returns a dict:
+      cpp       - CPP on earnings between the exemption and the YMPE
+      cpp2      - CPP2 on earnings between the YMPE and the YAMPE
+      base      - part of cpp that earns a tax credit
+      enhanced  - part of cpp that is a deduction from income
+    """
+    r = _rates(PAYROLL, year)
+    pensionable = min(employment_income, r["ympe"]) - r["cpp_exemption"]
+    pensionable = max(0.0, pensionable)
+    cpp = round(pensionable * r["cpp_rate"], 2)
+    base = round(pensionable * r["cpp_base_rate"], 2)
+    cpp2_earnings = max(0.0, min(employment_income, r["yampe"]) - r["ympe"])
+    cpp2 = round(cpp2_earnings * r["cpp2_rate"], 2)
+    return {"cpp": cpp, "cpp2": cpp2, "base": base, "enhanced": round(cpp - base, 2)}
+
+
+def ei_premium(employment_income, year=2026):
+    """Employee EI premium on employment income."""
+    r = _rates(PAYROLL, year)
+    return round(min(employment_income, r["ei_max_insurable"]) * r["ei_rate"], 2)
+
+
+def total_tax(taxable_income, year=2026, other_credits=0):
+    """Summary of federal + Ontario tax for one taxable income."""
+    def tax_at(income):
+        return (federal_tax(income, year, other_credits)
+                + ontario_tax(income, year, other_credits)
+                + ontario_health_premium(income, year))
+
+    fed = federal_tax(taxable_income, year, other_credits)
+    on = ontario_tax(taxable_income, year, other_credits)
     ohp = ontario_health_premium(taxable_income, year)
     total = round(fed + on + ohp, 2)
-    nxt = taxable_income + 100
-    next_dollar = federal_tax(nxt, year) + ontario_tax(nxt, year) + ontario_health_premium(nxt, year)
     return {
         "year": year,
         "income": taxable_income,
@@ -96,5 +128,36 @@ def total_tax(taxable_income, year=2026):
         "total": total,
         "after_tax_income": round(taxable_income - total, 2),
         "average_rate": round(total / taxable_income, 4) if taxable_income else 0.0,
-        "marginal_rate": round((next_dollar - total) / 100, 4),
+        "marginal_rate": round((tax_at(taxable_income + 100) - total) / 100, 4),
+    }
+
+
+def take_home(employment_income, year=2026):
+    """Take-home pay for an Ontario employee: income tax, CPP and EI.
+
+    How CPP and EI affect income tax:
+      - the enhanced part of CPP and all of CPP2 are deducted from income
+      - base CPP and EI premiums earn non-refundable tax credits
+    """
+    c = cpp_contributions(employment_income, year)
+    ei = ei_premium(employment_income, year)
+    taxable = round(employment_income - c["enhanced"] - c["cpp2"], 2)
+    credits = c["base"] + ei
+    t = total_tax(taxable, year, other_credits=credits)
+    deductions = round(t["total"] + c["cpp"] + c["cpp2"] + ei, 2)
+    return {
+        "year": year,
+        "employment_income": employment_income,
+        "taxable_income": taxable,
+        "federal": t["federal"],
+        "ontario": t["ontario"],
+        "ontario_health_premium": t["ontario_health_premium"],
+        "income_tax": t["total"],
+        "cpp": c["cpp"],
+        "cpp2": c["cpp2"],
+        "ei": ei,
+        "total_deductions": deductions,
+        "take_home": round(employment_income - deductions, 2),
+        "monthly_take_home": round((employment_income - deductions) / 12, 2),
+        "average_rate": round(deductions / employment_income, 4) if employment_income else 0.0,
     }

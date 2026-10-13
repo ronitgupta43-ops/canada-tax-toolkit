@@ -50,3 +50,19 @@ ONTARIO = {
         ],
     },
 }
+
+# Employee payroll contributions: CPP and EI
+# Source: CRA 2026 CPP and EI rates and maximums
+PAYROLL = {
+    2026: {
+        "cpp_exemption": 3_500,
+        "ympe": 74_600,           # CPP ceiling
+        "cpp_rate": 0.0595,       # employee rate, $3,500 to YMPE
+        "cpp_base_rate": 0.0495,  # part of cpp_rate that earns a tax credit;
+                                  # the other 1% is a deduction from income
+        "yampe": 85_000,          # CPP2 ceiling
+        "cpp2_rate": 0.04,        # employee rate, YMPE to YAMPE (a deduction)
+        "ei_max_insurable": 68_900,
+        "ei_rate": 0.0163,        # EI premiums earn a tax credit
+    },
+}

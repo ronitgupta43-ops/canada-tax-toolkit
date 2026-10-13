@@ -2,12 +2,18 @@
 
 from .calculator import (
     bracket_tax,
+    cpp_contributions,
+    ei_premium,
     federal_bpa,
     federal_tax,
     ontario_health_premium,
     ontario_tax,
+    take_home,
     total_tax,
 )
 
-__version__ = "0.1.0"
-__all__ = ["bracket_tax", "federal_bpa", "federal_tax", "ontario_health_premium", "ontario_tax", "total_tax"]
+__version__ = "0.2.0"
+__all__ = [
+    "bracket_tax", "cpp_contributions", "ei_premium", "federal_bpa", "federal_tax",
+    "ontario_health_premium", "ontario_tax", "take_home", "total_tax",
+]
