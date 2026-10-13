@@ -3,113 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ontario Income Tax Calculator 2026 · Canada Tax Toolkit</title>
-<meta name="description" content="Free, open-source 2026 Ontario income tax calculator. See federal tax, Ontario tax and the Ontario Health Premium, with every line explained.">
+<title>Ontario Take-Home Pay Calculator 2026 · Canada Tax Toolkit</title>
+<meta name="description" content="Free, open-source 2026 Ontario take-home pay calculator. See federal tax, Ontario tax, the Ontario Health Premium, CPP and EI, with every line explained.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #F4F7F6;
-    --sheet: #FFFFFF;
-    --ink: #17324D;
-    --muted: #5B6B78;
-    --rule: #C9D4D0;
-    --tint: #E4EFEA;
-    --pine: #1F6B4F;
-    --error: #A3342B;
+    --paper: #F4F7F6; --sheet: #FFFFFF; --ink: #17324D; --muted: #5B6B78;
+    --rule: #C9D4D0; --tint: #E4EFEA; --pine: #1F6B4F; --error: #A3342B;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --paper: #0F1A22;
-      --sheet: #15232D;
-      --ink: #E6EEF2;
-      --muted: #9AABB6;
-      --rule: #2C3E49;
-      --tint: #1B3029;
-      --pine: #6FC4A1;
-      --error: #F08A80;
+      --paper: #0F1A22; --sheet: #15232D; --ink: #E6EEF2; --muted: #9AABB6;
+      --rule: #2C3E49; --tint: #1B3029; --pine: #6FC4A1; --error: #F08A80;
     }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
+    margin: 0; background: var(--paper); color: var(--ink);
     font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 1rem;
-    line-height: 1.55;
-    font-variant-numeric: tabular-nums;
+    font-size: 1rem; line-height: 1.55; font-variant-numeric: tabular-nums;
   }
   main { max-width: 44rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
-
-  .question {
-    font-size: clamp(1.75rem, 5.5vw, 2.75rem);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    margin: 0 0 0.5rem;
+  .question, .answer {
+    font-size: clamp(1.75rem, 5.5vw, 2.75rem); font-weight: 800;
+    line-height: 1.2; letter-spacing: -0.02em;
   }
-  .income-field {
-    display: inline-flex;
-    align-items: baseline;
-    border-bottom: 3px solid var(--pine);
-    padding: 0 0.1em;
-  }
-  .income-field { position: relative; }
-  .income-field > span:first-child { color: var(--pine); }
-  #income {
-    font: inherit;
-    color: var(--pine);
-    background: transparent;
-    border: 0;
-    width: 6.2ch;
-    padding: 0;
-    outline: none;
-  }
-  .income-field:focus-within { background: var(--tint); }
-  .answer {
-    font-size: clamp(1.75rem, 5.5vw, 2.75rem);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    margin: 0 0 1rem;
-    min-height: 1.2em;
-  }
+  .question { margin: 0 0 0.5rem; }
+  .answer { margin: 0 0 1rem; min-height: 1.2em; }
   .answer strong { color: var(--pine); }
-  .lede { color: var(--muted); max-width: 36rem; margin: 0 0 2.5rem; }
-
-  .sheet {
-    background: var(--sheet);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
+  .income-field {
+    position: relative; display: inline-flex; align-items: baseline;
+    border-bottom: 3px solid var(--pine); padding: 0 0.1em;
   }
+  .income-field > span:first-child { color: var(--pine); }
+  .income-field:focus-within { background: var(--tint); }
+  #income {
+    font: inherit; color: var(--pine); background: transparent;
+    border: 0; width: 6.2ch; padding: 0; outline: none;
+  }
+  .lede { color: var(--muted); max-width: 36rem; margin: 0 0 2.5rem; }
+  .sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; }
   .sheet-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 1.25rem;
-    background: var(--tint);
-    border-bottom: 1px solid var(--rule);
-    font-weight: 700;
+    display: flex; justify-content: space-between; gap: 1rem;
+    padding: 0.9rem 1.25rem; background: var(--tint);
+    border-bottom: 1px solid var(--rule); font-weight: 700;
   }
   .sheet-head small { font-weight: 400; color: var(--muted); }
-  ol.lines { list-style: none; margin: 0; padding: 0; counter-reset: line; }
-  ol.lines li {
-    counter-increment: line;
-    display: grid;
-    grid-template-columns: 2.25rem 1fr auto;
-    gap: 0 0.75rem;
-    padding: 0.85rem 1.25rem;
+  .group {
+    padding: 0.6rem 1.25rem; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
     border-bottom: 1px solid var(--rule);
   }
-  ol.lines li::before {
-    content: counter(line);
-    color: var(--muted);
-    font-size: 0.85rem;
-    padding-top: 0.15rem;
+  ol.lines { list-style: none; margin: 0; padding: 0; counter-reset: line; }
+  ol.lines li {
+    counter-increment: line; display: grid;
+    grid-template-columns: 2.25rem 1fr auto; gap: 0 0.75rem;
+    padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--rule);
   }
+  ol.lines li::before { content: counter(line); color: var(--muted); font-size: 0.85rem; padding-top: 0.15rem; }
+  ol.lines li.group { display: block; padding: 0.6rem 1.25rem; }
+  ol.lines li.group::before { content: none; }
+  ol.lines li.group { counter-increment: none; }
   ol.lines li:last-child { border-bottom: 0; }
   .label { font-weight: 500; }
   .how { grid-column: 2 / 4; color: var(--muted); font-size: 0.875rem; }
@@ -117,18 +74,12 @@
   li.total { background: var(--tint); }
   li.total .label, li.total .amount { font-weight: 800; }
   .rates {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 2rem;
-    padding: 0.9rem 1.25rem;
-    border-top: 1px solid var(--rule);
-    color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
+    padding: 0.9rem 1.25rem; border-top: 1px solid var(--rule); color: var(--muted);
   }
   .rates b { color: var(--ink); }
-
   .status { color: var(--muted); padding: 1.25rem; margin: 0; }
   .status.error { color: var(--error); }
-
   .notes { margin-top: 2.5rem; color: var(--muted); font-size: 0.925rem; max-width: 38rem; }
   .notes h2 { color: var(--ink); font-size: 1.05rem; margin: 1.75rem 0 0.4rem; }
   .notes p, .notes ul { margin: 0 0 0.75rem; }
@@ -141,62 +92,80 @@
 <main>
   <h1 class="question">
     If I earn
-    <label class="income-field" for="income"><span>$</span><input id="income" type="text" inputmode="numeric" autocomplete="off" value="75,000" aria-label="Taxable income in dollars"></label>
-    in Ontario in 2026,
+    <label class="income-field" for="income"><span>$</span><input id="income" type="text" inputmode="numeric" autocomplete="off" value="75,000" aria-label="Yearly salary in dollars"></label>
+    a year in Ontario in 2026,
   </h1>
   <p class="answer" id="answer" aria-live="polite">&nbsp;</p>
-  <p class="lede">A free, open-source calculator that shows its work. Every rate comes from CRA and Ontario tax forms, and every calculation is checked by automated tests.</p>
+  <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA and Ontario tax forms, and every calculation is checked by automated tests.</p>
 
-  <section class="sheet" aria-label="Tax breakdown">
+  <section class="sheet" aria-label="Pay breakdown">
     <div class="sheet-head">
-      <span>Your 2026 income tax</span>
-      <small>Ontario resident, single</small>
+      <span>Your 2026 pay</span>
+      <small>Ontario employee, single</small>
     </div>
     <p class="status" id="status">Loading the calculator. This takes a few seconds the first time.</p>
     <div id="results" hidden>
       <ol class="lines">
         <li>
-          <span class="label">Taxable income</span>
-          <span class="amount" data-k="income"></span>
+          <span class="label">Yearly salary</span>
+          <span class="amount" data-k="employment_income"></span>
         </li>
+        <li class="group">Income tax</li>
         <li>
           <span class="label">Federal tax</span>
           <span class="amount" data-k="federal"></span>
-          <span class="how">Federal brackets (14% to 33%), minus the basic personal amount credit.</span>
+          <span class="how">Federal brackets (14% to 33%), minus credits for the basic personal amount, base CPP and EI.</span>
         </li>
         <li>
           <span class="label">Ontario tax</span>
           <span class="amount" data-k="ontario"></span>
-          <span class="how">Ontario brackets (5.05% to 13.16%), minus the basic personal amount credit, plus surtax, minus the low-income tax reduction.</span>
+          <span class="how">Ontario brackets (5.05% to 13.16%), minus the same credits, plus surtax, minus the low-income tax reduction.</span>
         </li>
         <li>
           <span class="label">Ontario Health Premium</span>
           <span class="amount" data-k="ontario_health_premium"></span>
           <span class="how">$0 up to $900, based on taxable income.</span>
         </li>
-        <li class="total">
-          <span class="label">Total income tax</span>
-          <span class="amount" data-k="total"></span>
+        <li class="group">Payroll deductions</li>
+        <li>
+          <span class="label">CPP</span>
+          <span class="amount" data-k="cpp"></span>
+          <span class="how">5.95% of salary between $3,500 and $74,600.</span>
         </li>
         <li>
-          <span class="label">Left after income tax</span>
-          <span class="amount" data-k="after_tax_income"></span>
+          <span class="label">CPP2</span>
+          <span class="amount" data-k="cpp2"></span>
+          <span class="how">4% of salary between $74,600 and $85,000.</span>
+        </li>
+        <li>
+          <span class="label">EI</span>
+          <span class="amount" data-k="ei"></span>
+          <span class="how">1.63% of salary up to $68,900.</span>
+        </li>
+        <li class="total">
+          <span class="label">Total deductions</span>
+          <span class="amount" data-k="total_deductions"></span>
+        </li>
+        <li class="total">
+          <span class="label">Take-home pay</span>
+          <span class="amount" data-k="take_home"></span>
         </li>
       </ol>
       <div class="rates">
-        <span>Average rate <b data-k="average_rate"></b></span>
-        <span>Tax on your next dollar <b data-k="marginal_rate"></b></span>
+        <span>Per month <b data-k="monthly_take_home"></b></span>
+        <span>Share of salary deducted <b data-k="average_rate"></b></span>
       </div>
     </div>
   </section>
 
   <div class="notes">
     <h2>What this includes</h2>
-    <p>Federal and Ontario income tax for 2026, the Ontario surtax, the Ontario low-income tax reduction and the Ontario Health Premium.</p>
+    <p>Federal and Ontario income tax for 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, and employee CPP, CPP2 and EI, including the tax credits and deduction they give you.</p>
     <h2>What it doesn't include yet</h2>
     <ul>
-      <li>CPP and EI contributions, so this isn't your exact take-home pay.</li>
-      <li>Other credits and deductions, like RRSP contributions, tuition or medical expenses.</li>
+      <li>The Canada employment amount credit, which lowers federal tax for most employees by about $200.</li>
+      <li>Other credits and deductions, like RRSP contributions, union dues, tuition or medical expenses.</li>
+      <li>Self-employment income.</li>
     </ul>
     <p>This is an educational tool, not tax advice. Confirm with CRA or a tax professional.</p>
     <h2>How it works</h2>
@@ -226,7 +195,7 @@
   input.parentNode.appendChild(mirror);
   function sizeInput() {
     mirror.textContent = input.value || "0";
-    input.style.width = (mirror.offsetWidth + 4) + "px";
+    input.style.width = (mirror.offsetWidth + 6) + "px";
   }
 
   function render() {
@@ -236,7 +205,7 @@
       resultsEl.hidden = true;
       statusEl.hidden = false;
       statusEl.className = "status";
-      statusEl.textContent = "Type your taxable income to see the breakdown.";
+      statusEl.textContent = "Type your yearly salary to see the breakdown.";
       answerEl.innerHTML = "&nbsp;";
       return;
     }
@@ -244,18 +213,20 @@
       resultsEl.hidden = true;
       statusEl.hidden = false;
       statusEl.className = "status error";
-      statusEl.textContent = "Enter an income under $100,000,000.";
+      statusEl.textContent = "Enter a salary under $100,000,000.";
       return;
     }
-    const py = calc.total_tax(income);
+    const py = calc.take_home(income);
     const r = py.toJs({ dict_converter: Object.fromEntries });
     py.destroy();
     for (const el of resultsEl.querySelectorAll("[data-k]")) {
       const k = el.dataset.k;
-      el.textContent = (k === "average_rate" || k === "marginal_rate") ? pct.format(r[k]) : money.format(r[k]);
+      el.textContent = k === "average_rate" ? pct.format(r[k]) : money.format(r[k]);
     }
-    answerEl.innerHTML = "I keep <strong></strong> after income tax.";
-    answerEl.querySelector("strong").textContent = money.format(r.after_tax_income);
+    answerEl.innerHTML = "I take home <strong></strong>, about <strong></strong> a month.";
+    const s = answerEl.querySelectorAll("strong");
+    s[0].textContent = money.format(r.take_home);
+    s[1].textContent = money.format(r.monthly_take_home);
     statusEl.hidden = true;
     resultsEl.hidden = false;
   }
@@ -276,10 +247,9 @@
   async function start() {
     try {
       const pyodide = await loadPyodide();
-      const files = ["rates.py", "calculator.py"];
       pyodide.FS.mkdirTree("/home/pyodide/canadatax");
       pyodide.FS.writeFile("/home/pyodide/canadatax/__init__.py", "");
-      for (const f of files) {
+      for (const f of ["rates.py", "calculator.py"]) {
         const res = await fetch("src/canadatax/" + f, { cache: "no-cache" });
         if (!res.ok) throw new Error("Could not load " + f);
         pyodide.FS.writeFile("/home/pyodide/canadatax/" + f, await res.text());
@@ -294,7 +264,7 @@
     }
   }
 
-    sizeInput();
+  sizeInput();
   if (document.fonts) document.fonts.ready.then(sizeInput);
   window.addEventListener("load", sizeInput);
   start();
