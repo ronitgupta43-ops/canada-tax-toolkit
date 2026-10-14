@@ -175,3 +175,48 @@ def take_home(employment_income, year=2026):
         "monthly_take_home": round((employment_income - deductions) / 12, 2),
         "average_rate": round(deductions / employment_income, 4) if employment_income else 0.0,
     }
+
+
+def refund_estimate(employment_income, income_tax_deducted, year=2026,
+                    cpp_deducted=None, ei_deducted=None):
+    """Estimate a tax refund (or balance owing) for an Ontario employee.
+
+    Payroll deducts tax from each paycheque as if you'd earn that amount
+    every pay period all year. If your hours change, you start partway
+    through the year, or some paycheques are bigger than others, the total
+    deducted can be more (or less) than the tax you actually owe on your
+    real yearly income. Filing your return settles the difference.
+
+    employment_income:    total employment income for the year (T4 box 14)
+    income_tax_deducted:  total income tax deducted (T4 box 22)
+    cpp_deducted:         optional, total CPP + CPP2 deducted (T4 boxes 16 + 16A)
+    ei_deducted:          optional, total EI deducted (T4 box 18)
+
+    A positive refund means money back; negative means a balance owing.
+    """
+    r = take_home(employment_income, year)
+    tax_owed = r["income_tax"]
+    tax_refund = round(income_tax_deducted - tax_owed, 2)
+
+    # CPP and EI overpayments only happen if more was deducted than required,
+    # usually because you had more than one employer in the year.
+    cpp_required = round(r["cpp"] + r["cpp2"], 2)
+    cpp_refund = 0.0
+    if cpp_deducted is not None:
+        cpp_refund = round(max(0.0, cpp_deducted - cpp_required), 2)
+    ei_refund = 0.0
+    if ei_deducted is not None:
+        ei_refund = round(max(0.0, ei_deducted - r["ei"]), 2)
+
+    return {
+        "year": year,
+        "employment_income": employment_income,
+        "tax_owed": tax_owed,
+        "income_tax_deducted": income_tax_deducted,
+        "tax_refund": tax_refund,
+        "cpp_required": cpp_required,
+        "cpp_refund": cpp_refund,
+        "ei_required": r["ei"],
+        "ei_refund": ei_refund,
+        "total_refund": round(tax_refund + cpp_refund + ei_refund, 2),
+    }

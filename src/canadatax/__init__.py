@@ -9,6 +9,7 @@ from .calculator import (
     federal_tax,
     ontario_health_premium,
     ontario_tax,
+    refund_estimate,
     take_home,
     total_tax,
 )
@@ -16,5 +17,5 @@ from .calculator import (
 __version__ = "0.3.0"
 __all__ = [
     "bracket_tax", "canada_employment_amount", "cpp_contributions", "ei_premium", "federal_bpa", "federal_tax",
-    "ontario_health_premium", "ontario_tax", "take_home", "total_tax",
+    "ontario_health_premium", "ontario_tax", "refund_estimate", "take_home", "total_tax",
 ]
