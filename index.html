@@ -76,6 +76,8 @@
     background:
       radial-gradient(60rem 30rem at 85% 10%, rgba(57, 135, 229, 0.45), transparent 60%),
       radial-gradient(40rem 26rem at 5% 95%, rgba(27, 175, 122, 0.30), transparent 60%),
+      linear-gradient(90deg, rgba(14, 26, 43, 0.97) 0%, rgba(14, 26, 43, 0.88) 45%, rgba(14, 26, 43, 0.72) 100%),
+      url("images/hero.jpg") center / cover no-repeat,
       #0E1A2B;
     color: #EEF2F7;
     padding-bottom: 5rem;
@@ -277,8 +279,49 @@
   .refund-sub { color: #B7C3D3; margin: 0 0 1.25rem; }
   .refund-lines div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.65rem 0; border-top: 1px solid rgba(255,255,255,0.12); }
   .refund-lines div[hidden] { display: none; }
+  .refund-warn {
+    background: rgba(253, 176, 34, 0.14); border: 1px solid rgba(253, 176, 34, 0.45);
+    color: #FEDF89; border-radius: 12px; padding: 0.75rem 0.9rem; font-size: 0.9rem; margin: 0 0 1.25rem;
+  }
   .refund-lines span { color: #B7C3D3; }
   .refund-lines b { color: #FFFFFF; }
+
+  /* Buttons */
+  .ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: -0.5rem 0 2rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem; text-decoration: none; border-radius: 12px;
+    padding: 0.8rem 1.3rem; transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: #3987e5; color: #FFFFFF; }
+  .btn-primary:hover { background: #2a78d6; }
+  .btn-ghost { color: #FFFFFF; border: 1.5px solid rgba(255,255,255,0.35); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+  .btn-light { background: #FFFFFF; color: #13223A; }
+
+  /* Photo cards */
+  .audience { padding: 0 0 3.5rem; }
+  .audience > p { color: var(--muted); margin: 0 0 1.5rem; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .pcard {
+    position: relative; overflow: hidden; isolation: isolate;
+    min-height: 23rem; border-radius: 22px; padding: 1.75rem;
+    display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF;
+    background: var(--img) center / cover no-repeat, var(--tone);
+  }
+  .pcard::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, transparent 0%, var(--tone-a) 45%, var(--tone) 100%);
+  }
+  .pcard h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 0.6rem; }
+  .pcard p { margin: 0 0 1.25rem; color: rgba(255,255,255,0.88); }
+  .pcard .btn { align-self: flex-start; }
+  .pcard-blue { --tone: #184f95; --tone-a: rgba(24, 79, 149, 0.82); }
+  .pcard-green { --tone: #0f6b4a; --tone-a: rgba(15, 107, 74, 0.82); }
+  .pcard-violet { --tone: #3f3399; --tone-a: rgba(63, 51, 153, 0.82); }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:hover { transform: none; } }
+
   @media (max-width: 860px) {
     .refund-grid { grid-template-columns: 1fr; }
     .refund-card { position: static; }
@@ -291,6 +334,8 @@
     .hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 1.5rem; }
     .notes { grid-template-columns: 1fr; }
     .trust { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: 1fr; }
+    .pcard { min-height: 19rem; }
   }
   @media (max-width: 520px) {
     .result { padding: 1.5rem 1.25rem; border-radius: 20px; }
@@ -306,7 +351,7 @@
 </style>
 </head>
 <body>
-<div class="band">
+<div class="band" id="top">
   <svg class="contours" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g fill="none" stroke="currentColor" stroke-width="1.2">
       <path d="M-50 420 C 200 360, 380 470, 620 400 S 1000 300, 1250 360"/>
@@ -334,6 +379,11 @@
         <span class="badge"><i></i>Updated for 2025 and 2026 tax years</span>
         <h1>Your Ontario paycheque, line by line.</h1>
         <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA, and every calculation is tested.</p>
+
+        <div class="ctas">
+          <a class="btn btn-primary" href="#breakdown">See my full breakdown</a>
+          <a class="btn btn-ghost" href="#refund">Did I overpay tax?</a>
+        </div>
 
         <label class="field-label" for="income">Yearly salary</label>
         <div class="salary">
@@ -386,6 +436,28 @@
       </div>
     </section>
 
+    <section class="audience" aria-labelledby="audience-title">
+      <h2 id="audience-title">Made for real paycheques</h2>
+      <p>Pay in Canada is rarely the same every week. Pick the situation that sounds like yours.</p>
+      <div class="cards">
+        <article class="pcard pcard-blue" style="--img: url('images/hourly.jpg')">
+          <h3>Hours change week to week?</h3>
+          <p>Big paycheques get taxed as if you earn that every time. Find out how much could come back when you file.</p>
+          <a class="btn btn-light" href="#refund">Estimate my refund</a>
+        </article>
+        <article class="pcard pcard-green" style="--img: url('images/two-jobs.jpg')">
+          <h3>Worked two jobs this year?</h3>
+          <p>Each employer takes CPP and EI from zero, so you can overpay. See what you're owed back.</p>
+          <a class="btn btn-light" href="#refund">Check CPP and EI</a>
+        </article>
+        <article class="pcard pcard-violet" style="--img: url('images/job-offer.jpg')">
+          <h3>Comparing job offers?</h3>
+          <p>A higher salary doesn't always mean what you think. See the real take-home difference, per month.</p>
+          <a class="btn btn-light" href="#top">Compare salaries</a>
+        </article>
+      </div>
+    </section>
+
     <section class="section" id="breakdown">
       <h2>The full breakdown</h2>
       <p>Every line, with how it's calculated. Hover a line to find it in the chart.</p>
@@ -430,7 +502,7 @@
 
       <div class="refund-grid">
         <form class="refund-form" id="refund-form" autocomplete="off" onsubmit="return false">
-          <p class="form-hint">Use the year-to-date (YTD) amounts on your latest pay stub. At tax time, use your T4 instead and leave the future paycheques at 0.</p>
+          <p class="form-hint">Use the year-to-date (YTD) amounts on your latest pay stub. Your stub lists income tax, CPP and EI on separate lines; this estimate needs income tax only. At tax time, use your T4 (box 14 and box 22) and leave the future paycheques at 0.</p>
 
           <div class="pair">
             <label>Income so far this year
@@ -439,7 +511,7 @@
             </label>
             <label>Income tax deducted so far
               <span class="money-in"><i>$</i><input id="ytd-tax" inputmode="decimal" placeholder="6,200"></span>
-              <small>YTD income tax (federal + provincial)</small>
+              <small>Only the <b>Income tax</b> line (or Federal + Provincial tax). Don't include CPP or EI.</small>
             </label>
           </div>
 
@@ -450,7 +522,7 @@
             <label>Expected gross per paycheque
               <span class="money-in"><i>$</i><input id="pay-gross" inputmode="decimal" placeholder="0"></span>
             </label>
-            <label>Expected tax per paycheque
+            <label>Expected income tax per paycheque
               <span class="money-in"><i>$</i><input id="pay-tax" inputmode="decimal" placeholder="0"></span>
             </label>
           </div>
@@ -473,6 +545,7 @@
           <p class="result-label" id="refund-label">Estimated refund</p>
           <p class="big" id="refund-big">-</p>
           <p class="refund-sub" id="refund-sub">Enter your pay stub numbers to see your estimate.</p>
+          <p class="refund-warn" id="refund-warn" hidden></p>
           <div class="refund-lines" id="refund-lines" hidden>
             <div><span>Income for the year</span><b id="rf-income"></b></div>
             <div><span>Income tax deducted</span><b id="rf-ded"></b></div>
@@ -626,6 +699,7 @@
     const ytdTax = num(rf["ytd-tax"]);
     if (!rf["ytd-income"].value.trim() || !rf["ytd-tax"].value.trim() || ytdIncome <= 0) {
       document.getElementById("refund-lines").hidden = true;
+      document.getElementById("refund-warn").hidden = true;
       document.getElementById("refund-big").textContent = "-";
       document.getElementById("refund-label").textContent = "Estimated refund";
       document.getElementById("refund-sub").textContent = "Enter your pay stub numbers to see your estimate.";
@@ -655,6 +729,15 @@
     document.getElementById("rf-ei-row").hidden = !r.ei_refund;
     document.getElementById("rf-ei").textContent = money.format(r.ei_refund);
     document.getElementById("refund-lines").hidden = false;
+
+    // If the "refund" is close to what CPP and EI would be, the tax figures probably include them
+    const warn = document.getElementById("refund-warn");
+    const payroll = r.cpp_required + r.ei_required;
+    const looksMixed = r.tax_refund > 0 && payroll > 0 && r.tax_refund > 0.6 * payroll;
+    warn.hidden = !looksMixed;
+    if (looksMixed) {
+      warn.textContent = `This refund looks high. CPP and EI on this income would be about ${money0.format(payroll)}. Check that you entered only the income tax line from your pay stub, without CPP or EI.`;
+    }
   }
   rfIds.forEach(id => rf[id].addEventListener("input", () => { clearTimeout(rf.t); rf.t = setTimeout(renderRefund, 150); }));
 
