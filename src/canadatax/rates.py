@@ -6,6 +6,23 @@ and add a test that checks a known example from an official source.
 """
 
 FEDERAL = {
+    2025: {
+        # Lowest rate cut from 15% to 14% on July 1, 2025: full-year rate is 14.5%
+        # Source: CRA T4032ON payroll tables, July 2025
+        "brackets": [
+            (57_375, 0.145),
+            (114_750, 0.205),
+            (177_882, 0.26),
+            (253_414, 0.29),
+            (None, 0.33),
+        ],
+        "bpa_max": 16_129,
+        "bpa_min": 14_538,
+        "bpa_phaseout_start": 177_882,
+        "bpa_phaseout_end": 253_414,
+        "credit_rate": 0.145,
+        "employment_amount": 1_471,
+    },
     2026: {
         # (upper limit of bracket, rate); None = no upper limit
         "brackets": [
@@ -26,6 +43,27 @@ FEDERAL = {
 }
 
 ONTARIO = {
+    2025: {
+        # Source: TaxTips.ca Ontario 2025 rates; EY Ontario Budget 2025 summary
+        "brackets": [
+            (52_886, 0.0505),
+            (105_775, 0.0915),
+            (150_000, 0.1116),
+            (220_000, 0.1216),
+            (None, 0.1316),
+        ],
+        "bpa": 12_747,
+        "credit_rate": 0.0505,
+        "surtax": [(5_710, 0.20), (7_307, 0.36)],
+        "tax_reduction": 294,
+        "health_premium": [   # unchanged since 2005
+            (20_000, 0.06, 0, 300),
+            (36_000, 0.06, 300, 450),
+            (48_000, 0.25, 450, 600),
+            (72_000, 0.25, 600, 750),
+            (200_000, 0.25, 750, 900),
+        ],
+    },
     2026: {
         "brackets": [
             (53_891, 0.0505),
@@ -56,6 +94,17 @@ ONTARIO = {
 # Employee payroll contributions: CPP and EI
 # Source: CRA 2026 CPP and EI rates and maximums
 PAYROLL = {
+    2025: {
+        # Source: CRA T4032ON payroll tables, 2025
+        "cpp_exemption": 3_500,
+        "ympe": 71_300,
+        "cpp_rate": 0.0595,
+        "cpp_base_rate": 0.0495,
+        "yampe": 81_200,
+        "cpp2_rate": 0.04,
+        "ei_max_insurable": 65_700,
+        "ei_rate": 0.0164,
+    },
     2026: {
         "cpp_exemption": 3_500,
         "ympe": 74_600,           # CPP ceiling
