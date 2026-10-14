@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "canada-tax-toolkit"
-version = "0.2.0"
-description = "Simple, transparent Canadian (federal + Ontario) income tax calculations"
+version = "0.3.0"
+description = "Ontario take-home pay calculator: federal and Ontario tax, Health Premium, CPP and EI"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "Ronit Gupta"}]
