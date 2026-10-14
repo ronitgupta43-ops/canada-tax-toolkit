@@ -20,6 +20,8 @@ FEDERAL = {
         "bpa_phaseout_start": 181_440,
         "bpa_phaseout_end": 258_482,
         "credit_rate": 0.14,
+        # Canada employment amount (federal only), Schedule 1 line 31260
+        "employment_amount": 1_501,
     },
 }
 

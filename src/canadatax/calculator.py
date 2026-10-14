@@ -108,14 +108,20 @@ def ei_premium(employment_income, year=2026):
     return round(min(employment_income, r["ei_max_insurable"]) * r["ei_rate"], 2)
 
 
-def total_tax(taxable_income, year=2026, other_credits=0):
-    """Summary of federal + Ontario tax for one taxable income."""
+def total_tax(taxable_income, year=2026, other_credits=0, federal_only_credits=0):
+    """Summary of federal + Ontario tax for one taxable income.
+
+    other_credits: credit amounts claimed both federally and in Ontario
+    federal_only_credits: credit amounts claimed only federally
+    """
+    fed_credits = other_credits + federal_only_credits
+
     def tax_at(income):
-        return (federal_tax(income, year, other_credits)
+        return (federal_tax(income, year, fed_credits)
                 + ontario_tax(income, year, other_credits)
                 + ontario_health_premium(income, year))
 
-    fed = federal_tax(taxable_income, year, other_credits)
+    fed = federal_tax(taxable_income, year, fed_credits)
     on = ontario_tax(taxable_income, year, other_credits)
     ohp = ontario_health_premium(taxable_income, year)
     total = round(fed + on + ohp, 2)
@@ -132,18 +138,26 @@ def total_tax(taxable_income, year=2026, other_credits=0):
     }
 
 
+def canada_employment_amount(employment_income, year=2026):
+    """Federal Canada employment amount: employment income, up to a yearly maximum."""
+    r = _rates(FEDERAL, year)
+    return min(employment_income, r["employment_amount"])
+
+
 def take_home(employment_income, year=2026):
     """Take-home pay for an Ontario employee: income tax, CPP and EI.
 
     How CPP and EI affect income tax:
       - the enhanced part of CPP and all of CPP2 are deducted from income
       - base CPP and EI premiums earn non-refundable tax credits
+    Employees also get the federal Canada employment amount credit.
     """
     c = cpp_contributions(employment_income, year)
     ei = ei_premium(employment_income, year)
     taxable = round(employment_income - c["enhanced"] - c["cpp2"], 2)
     credits = c["base"] + ei
-    t = total_tax(taxable, year, other_credits=credits)
+    employment = canada_employment_amount(employment_income, year)
+    t = total_tax(taxable, year, other_credits=credits, federal_only_credits=employment)
     deductions = round(t["total"] + c["cpp"] + c["cpp2"] + ei, 2)
     return {
         "year": year,
