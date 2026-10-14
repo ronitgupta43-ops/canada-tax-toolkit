@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ontario Take-Home Pay Calculator 2026 · Canada Tax Toolkit</title>
-<meta name="description" content="Free, open-source 2026 Ontario take-home pay calculator. See federal tax, Ontario tax, the Ontario Health Premium, CPP and EI, with every line explained.">
+<title>Ontario Take-Home Pay Calculator 2025 and 2026 · Canada Tax Toolkit</title>
+<meta name="description" content="Free, open-source Ontario take-home pay calculator for 2025 and 2026. See federal tax, Ontario tax, the Ontario Health Premium, CPP and EI, with every line explained.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -52,6 +52,15 @@
     border-bottom: 1px solid var(--rule); font-weight: 700;
   }
   .sheet-head small { font-weight: 400; color: var(--muted); }
+  .year-field { display: inline-flex; align-items: baseline; border-bottom: 3px solid var(--pine); color: var(--pine); }
+  .year-field::after { content: "\25BE"; font-size: 0.5em; margin-left: 0.15em; pointer-events: none; }
+  .year-field:focus-within { background: var(--tint); }
+  #year {
+    font: inherit; color: var(--pine); background: transparent; border: 0;
+    padding: 0 0.1em; cursor: pointer; appearance: none; -webkit-appearance: none;
+  }
+  #year:focus-visible { outline: 2px solid var(--pine); outline-offset: 3px; }
+  #year option { color: #17324D; font-size: 1rem; }
   .group {
     padding: 0.6rem 1.25rem; font-size: 0.8rem; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
@@ -93,14 +102,15 @@
   <h1 class="question">
     If I earn
     <label class="income-field" for="income"><span>$</span><input id="income" type="text" inputmode="numeric" autocomplete="off" value="75,000" aria-label="Yearly salary in dollars"></label>
-    a year in Ontario in 2026,
+    a year in Ontario in
+    <label class="year-field" for="year"><select id="year" aria-label="Tax year"><option value="2026" selected>2026</option><option value="2025">2025</option></select></label>,
   </h1>
   <p class="answer" id="answer" aria-live="polite">&nbsp;</p>
   <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA and Ontario tax forms, and every calculation is checked by automated tests.</p>
 
   <section class="sheet" aria-label="Pay breakdown">
     <div class="sheet-head">
-      <span>Your 2026 pay</span>
+      <span>Your <span id="year-label">2026</span> pay</span>
       <small>Ontario employee, single</small>
     </div>
     <p class="status" id="status">Loading the calculator. This takes a few seconds the first time.</p>
@@ -114,7 +124,7 @@
         <li>
           <span class="label">Federal tax</span>
           <span class="amount" data-k="federal"></span>
-          <span class="how">Federal brackets (14% to 33%), minus credits for the basic personal amount, base CPP, EI and the Canada employment amount.</span>
+          <span class="how">Federal brackets (14% to 33%; the lowest rate was 14.5% for 2025), minus credits for the basic personal amount, base CPP, EI and the Canada employment amount.</span>
         </li>
         <li>
           <span class="label">Ontario tax</span>
@@ -160,7 +170,7 @@
 
   <div class="notes">
     <h2>What this includes</h2>
-    <p>Federal and Ontario income tax for 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, employee CPP, CPP2 and EI (including the tax credits and deduction they give you), and the federal Canada employment amount.</p>
+    <p>Federal and Ontario income tax for 2025 and 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, employee CPP, CPP2 and EI (including the tax credits and deduction they give you), and the federal Canada employment amount.</p>
     <h2>What it doesn't include yet</h2>
     <ul>
       <li>Other credits and deductions, like RRSP contributions, union dues, tuition or medical expenses.</li>
@@ -177,6 +187,7 @@
   const money = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" });
   const pct = new Intl.NumberFormat("en-CA", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 2 });
   const input = document.getElementById("income");
+  const yearEl = document.getElementById("year");
   const statusEl = document.getElementById("status");
   const resultsEl = document.getElementById("results");
   const answerEl = document.getElementById("answer");
@@ -215,7 +226,9 @@
       statusEl.textContent = "Enter a salary under $100,000,000.";
       return;
     }
-    const py = calc.take_home(income);
+    const year = Number(yearEl.value);
+    document.getElementById("year-label").textContent = year;
+    const py = calc.take_home(income, year);
     const r = py.toJs({ dict_converter: Object.fromEntries });
     py.destroy();
     for (const el of resultsEl.querySelectorAll("[data-k]")) {
@@ -235,6 +248,7 @@
     clearTimeout(timer);
     timer = setTimeout(render, 150);
   });
+  yearEl.addEventListener("change", render);
   input.addEventListener("blur", () => {
     const n = parseIncome(input.value);
     if (input.value.trim() && !isNaN(n)) {
