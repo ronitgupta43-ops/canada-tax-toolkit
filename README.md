@@ -33,7 +33,7 @@ print(total_tax(75_000))
 - [x] Ontario tax reduction (low-income)
 - [x] Ontario Health Premium
 - [x] CPP / EI contributions and credits
-- [ ] 2025 rates (with the blended 14.5% federal rate)
+- [x] 2025 rates (with the blended 14.5% federal rate)
 - [ ] Other provinces (BC, Alberta, Quebec…)
 - [ ] RRSP deduction "what if" calculator
 
