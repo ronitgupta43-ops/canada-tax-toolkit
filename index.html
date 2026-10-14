@@ -244,6 +244,49 @@
   footer { border-top: 1px solid var(--line); padding: 1.5rem 0 2.5rem; color: var(--muted); font-size: 0.9rem; }
   code { font-size: 0.9em; background: var(--soft); padding: 0.1em 0.4em; border-radius: 6px; }
 
+
+  /* Refund estimator */
+  .refund-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; align-items: start; }
+  .refund-form { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 1.5rem; }
+  .form-hint { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.25rem; }
+  .pair, .trio { display: grid; gap: 1rem; margin-bottom: 1.25rem; }
+  .pair { grid-template-columns: 1fr 1fr; }
+  .trio { grid-template-columns: repeat(3, 1fr); }
+  .refund-form label { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.9rem; }
+  .refund-form small { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+  .money-in {
+    display: flex; align-items: center; gap: 0.25rem; background: var(--soft);
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 0.55rem 0.8rem;
+  }
+  .money-in:focus-within { border-color: var(--accent); }
+  .money-in i { font-style: normal; color: var(--muted); }
+  .money-in input { font: inherit; font-weight: 600; font-size: 1.05rem; color: var(--ink); background: transparent; border: 0; outline: none; width: 100%; min-width: 0; }
+  .more { border-top: 1px solid var(--line); padding-top: 1rem; }
+  .more summary { cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 0.75rem; }
+  .refund-card {
+    position: sticky; top: 1.5rem; border-radius: 24px; padding: 2rem; color: #EEF2F7;
+    background:
+      radial-gradient(30rem 18rem at 100% 0%, rgba(57, 135, 229, 0.45), transparent 60%),
+      radial-gradient(24rem 16rem at 0% 100%, rgba(27, 175, 122, 0.35), transparent 60%),
+      #0E1A2B;
+    box-shadow: 0 30px 60px rgba(14, 26, 43, 0.25);
+  }
+  .refund-card .result-label { color: #B7C3D3; }
+  .refund-card .big { color: #FFFFFF; }
+  .refund-card.owing .big { color: #FDB022; }
+  .refund-sub { color: #B7C3D3; margin: 0 0 1.25rem; }
+  .refund-lines div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.65rem 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .refund-lines div[hidden] { display: none; }
+  .refund-lines span { color: #B7C3D3; }
+  .refund-lines b { color: #FFFFFF; }
+  @media (max-width: 860px) {
+    .refund-grid { grid-template-columns: 1fr; }
+    .refund-card { position: static; }
+  }
+  @media (max-width: 520px) {
+    .pair, .trio { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 1.5rem; }
     .notes { grid-template-columns: 1fr; }
@@ -281,6 +324,7 @@
     <a class="brand" href="./">Canada Tax Toolkit</a>
     <nav>
       <a class="hide-sm" href="#breakdown">Breakdown</a>
+      <a href="#refund">Refund estimate</a>
       <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit">GitHub</a>
     </nav>
   </header>
@@ -376,6 +420,66 @@
         </div>
         <div class="row total" data-seg="keep">
           <span class="dot" style="background: var(--s-keep)"></span><span class="name">Take-home pay</span><span class="pct" data-p="take_home"></span><span class="amt" data-k="take_home">-</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="refund">
+      <h2>Did you overpay? Estimate your refund</h2>
+      <p>Payroll takes tax from each paycheque as if you'd earn that much every pay period all year. If your hours drop, you started partway through the year, or some paycheques are bigger than others, too much tax can come off. Filing your return gives the extra back.</p>
+
+      <div class="refund-grid">
+        <form class="refund-form" id="refund-form" autocomplete="off" onsubmit="return false">
+          <p class="form-hint">Use the year-to-date (YTD) amounts on your latest pay stub. At tax time, use your T4 instead and leave the future paycheques at 0.</p>
+
+          <div class="pair">
+            <label>Income so far this year
+              <span class="money-in"><i>$</i><input id="ytd-income" inputmode="decimal" placeholder="38,000"></span>
+              <small>YTD gross pay</small>
+            </label>
+            <label>Income tax deducted so far
+              <span class="money-in"><i>$</i><input id="ytd-tax" inputmode="decimal" placeholder="6,200"></span>
+              <small>YTD income tax (federal + provincial)</small>
+            </label>
+          </div>
+
+          <div class="trio">
+            <label>Paycheques left this year
+              <span class="money-in"><input id="pays-left" inputmode="numeric" placeholder="0" value="0"></span>
+            </label>
+            <label>Expected gross per paycheque
+              <span class="money-in"><i>$</i><input id="pay-gross" inputmode="decimal" placeholder="0"></span>
+            </label>
+            <label>Expected tax per paycheque
+              <span class="money-in"><i>$</i><input id="pay-tax" inputmode="decimal" placeholder="0"></span>
+            </label>
+          </div>
+
+          <details class="more">
+            <summary>Had more than one employer this year?</summary>
+            <p class="form-hint">Each employer deducts CPP and EI from zero, so you can overpay them. Enter your totals for the whole year (T4 boxes 16 + 16A for CPP, box 18 for EI).</p>
+            <div class="pair">
+              <label>Total CPP and CPP2 deducted
+                <span class="money-in"><i>$</i><input id="cpp-ded" inputmode="decimal" placeholder="Optional"></span>
+              </label>
+              <label>Total EI deducted
+                <span class="money-in"><i>$</i><input id="ei-ded" inputmode="decimal" placeholder="Optional"></span>
+              </label>
+            </div>
+          </details>
+        </form>
+
+        <div class="refund-card" aria-live="polite">
+          <p class="result-label" id="refund-label">Estimated refund</p>
+          <p class="big" id="refund-big">-</p>
+          <p class="refund-sub" id="refund-sub">Enter your pay stub numbers to see your estimate.</p>
+          <div class="refund-lines" id="refund-lines" hidden>
+            <div><span>Income for the year</span><b id="rf-income"></b></div>
+            <div><span>Income tax deducted</span><b id="rf-ded"></b></div>
+            <div><span>Income tax you actually owe</span><b id="rf-owed"></b></div>
+            <div class="rf-extra" id="rf-cpp-row" hidden><span>CPP overpaid</span><b id="rf-cpp"></b></div>
+            <div class="rf-extra" id="rf-ei-row" hidden><span>EI overpaid</span><b id="rf-ei"></b></div>
+          </div>
         </div>
       </div>
     </section>
@@ -508,7 +612,51 @@
     year = Number(b.dataset.year);
     yearButtons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
     render();
+    renderRefund();
   }));
+
+
+  // Refund estimator
+  const rfIds = ["ytd-income", "ytd-tax", "pays-left", "pay-gross", "pay-tax", "cpp-ded", "ei-ded"];
+  const rf = Object.fromEntries(rfIds.map(id => [id, document.getElementById(id)]));
+  function num(el) { const n = parseIncome(el.value); return isNaN(n) ? 0 : n; }
+  function renderRefund() {
+    if (!calc) return;
+    const ytdIncome = num(rf["ytd-income"]);
+    const ytdTax = num(rf["ytd-tax"]);
+    if (!rf["ytd-income"].value.trim() || !rf["ytd-tax"].value.trim() || ytdIncome <= 0) {
+      document.getElementById("refund-lines").hidden = true;
+      document.getElementById("refund-big").textContent = "-";
+      document.getElementById("refund-label").textContent = "Estimated refund";
+      document.getElementById("refund-sub").textContent = "Enter your pay stub numbers to see your estimate.";
+      return;
+    }
+    const pays = Math.max(0, Math.floor(num(rf["pays-left"])));
+    const income = ytdIncome + pays * num(rf["pay-gross"]);
+    const deducted = ytdTax + pays * num(rf["pay-tax"]);
+    const cpp = rf["cpp-ded"].value.trim() ? num(rf["cpp-ded"]) : null;
+    const ei = rf["ei-ded"].value.trim() ? num(rf["ei-ded"]) : null;
+    const py = calc.refund_estimate(income, deducted, year, cpp, ei);
+    const r = py.toJs({ dict_converter: Object.fromEntries });
+    py.destroy();
+    const total = r.total_refund;
+    const card = document.querySelector(".refund-card");
+    card.classList.toggle("owing", total < 0);
+    document.getElementById("refund-label").textContent = total < 0 ? "You may owe" : "Estimated refund";
+    document.getElementById("refund-big").textContent = money.format(Math.abs(total));
+    document.getElementById("refund-sub").textContent = total < 0
+      ? "Less tax came off your pay than you owe. You'd pay the difference when you file."
+      : `For the ${year} tax year, once you file your return.`;
+    document.getElementById("rf-income").textContent = money.format(r.employment_income);
+    document.getElementById("rf-ded").textContent = money.format(r.income_tax_deducted);
+    document.getElementById("rf-owed").textContent = money.format(r.tax_owed);
+    document.getElementById("rf-cpp-row").hidden = !r.cpp_refund;
+    document.getElementById("rf-cpp").textContent = money.format(r.cpp_refund);
+    document.getElementById("rf-ei-row").hidden = !r.ei_refund;
+    document.getElementById("rf-ei").textContent = money.format(r.ei_refund);
+    document.getElementById("refund-lines").hidden = false;
+  }
+  rfIds.forEach(id => rf[id].addEventListener("input", () => { clearTimeout(rf.t); rf.t = setTimeout(renderRefund, 150); }));
 
   function highlight(id) {
     bar.classList.toggle("dim", !!id);
@@ -545,6 +693,7 @@
       pyodide.runPython("import sys; sys.path.insert(0, '/home/pyodide')");
       calc = pyodide.pyimport("canadatax.calculator");
       render();
+      renderRefund();
     } catch (err) {
       statusEl.className = "status error";
       statusEl.textContent = "The calculator couldn't load. Check your connection and refresh the page.";
