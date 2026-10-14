@@ -7,254 +7,529 @@
 <meta name="description" content="Free, open-source Ontario take-home pay calculator for 2025 and 2026. See federal tax, Ontario tax, the Ontario Health Premium, CPP and EI, with every line explained.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #F4F7F6; --sheet: #FFFFFF; --ink: #17324D; --muted: #5B6B78;
-    --rule: #C9D4D0; --tint: #E4EFEA; --pine: #1F6B4F; --error: #A3342B;
+    color-scheme: light;
+    --bg: #EEF1F6;
+    --surface: #FFFFFF;
+    --ink: #13223A;
+    --muted: #5B677A;
+    --line: #DCE2EA;
+    --soft: #F5F7FA;
+    --accent: #2a78d6;
+    --s-keep: #2a78d6;
+    --s-fed: #eb6834;
+    --s-on: #1baf7a;
+    --s-ohp: #eda100;
+    --s-cpp: #e87ba4;
+    --s-ei: #008300;
+    --error: #B42318;
+    --shadow: 0 1px 2px rgba(19, 34, 58, 0.06), 0 8px 24px rgba(19, 34, 58, 0.06);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #0F1A22; --sheet: #15232D; --ink: #E6EEF2; --muted: #9AABB6;
-      --rule: #2C3E49; --tint: #1B3029; --pine: #6FC4A1; --error: #F08A80;
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0F1620;
+      --surface: #17212D;
+      --ink: #EEF2F7;
+      --muted: #9AA7B7;
+      --line: #263342;
+      --soft: #1C2734;
+      --accent: #3987e5;
+      --s-keep: #3987e5;
+      --s-fed: #d95926;
+      --s-on: #199e70;
+      --s-ohp: #c98500;
+      --s-cpp: #d55181;
+      --s-ei: #008300;
+      --error: #F97066;
+      --shadow: none;
     }
   }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0F1620; --surface: #17212D; --ink: #EEF2F7; --muted: #9AA7B7;
+    --line: #263342; --soft: #1C2734; --accent: #3987e5;
+    --s-keep: #3987e5; --s-fed: #d95926; --s-on: #199e70; --s-ohp: #c98500;
+    --s-cpp: #d55181; --s-ei: #008300; --error: #F97066; --shadow: none;
+  }
+
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 1rem; line-height: 1.55; font-variant-numeric: tabular-nums;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
   }
-  main { max-width: 44rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
-  .question, .answer {
-    font-size: clamp(1.75rem, 5.5vw, 2.75rem); font-weight: 800;
-    line-height: 1.2; letter-spacing: -0.02em;
+  a { color: var(--accent); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* Dark hero band */
+  .band {
+    position: relative; overflow: hidden; isolation: isolate;
+    background:
+      radial-gradient(60rem 30rem at 85% 10%, rgba(57, 135, 229, 0.45), transparent 60%),
+      radial-gradient(40rem 26rem at 5% 95%, rgba(27, 175, 122, 0.30), transparent 60%),
+      #0E1A2B;
+    color: #EEF2F7;
+    padding-bottom: 5rem;
   }
-  .question { margin: 0 0 0.5rem; }
-  .answer { margin: 0 0 1rem; min-height: 1.2em; }
-  .answer strong { color: var(--pine); }
-  .income-field {
-    position: relative; display: inline-flex; align-items: baseline;
-    border-bottom: 3px solid var(--pine); padding: 0 0.1em;
+  .band::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
   }
-  .income-field > span:first-child { color: var(--pine); }
-  .income-field:focus-within { background: var(--tint); }
+  .contours { position: absolute; inset: 0; width: 100%; height: 100%; color: rgba(255,255,255,0.07); z-index: -1; }
+  .band .brand, .band h1 { color: #FFFFFF; }
+  .band .top nav a { color: #B7C3D3; }
+  .band .top nav a:hover { color: #FFFFFF; }
+  .band .lede, .band .slider-ends { color: #B7C3D3; }
+  .band .field-label { color: #EEF2F7; }
+  .band .salary { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); box-shadow: none; }
+  .band .salary:focus-within { border-color: #6DA7EC; }
+  .band .salary span, .band .salary small { color: #B7C3D3; }
+  .band #income { color: #FFFFFF; }
+  .band #slider { accent-color: #6DA7EC; }
+  .band .years { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+  .band .years button { color: #B7C3D3; }
+  .band .years button[aria-pressed="true"] { background: #FFFFFF; color: #0E1A2B; }
+  .band .result { box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); border-color: transparent; color: var(--ink); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600;
+    color: #CFE0F6; background: rgba(57, 135, 229, 0.18); border: 1px solid rgba(109, 167, 236, 0.35);
+    padding: 0.3rem 0.8rem; border-radius: 999px; margin-bottom: 1.25rem;
+  }
+  .badge i { width: 7px; height: 7px; border-radius: 50%; background: #3DDC97; }
+
+  /* Trust strip */
+  .trust {
+    position: relative; margin-top: -3rem; z-index: 2;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 3.5rem;
+  }
+  .trust-item { display: flex; gap: 0.85rem; align-items: flex-start; }
+  .trust-item svg { width: 40px; height: 40px; flex: none; padding: 8px; border-radius: 12px; background: var(--soft); color: var(--accent); }
+  .trust-item b { display: block; font-weight: 700; }
+  .trust-item span { display: block; color: var(--muted); font-size: 0.9rem; }
+
+  /* Top bar */
+  .top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.25rem 0;
+  }
+  .brand {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800;
+    font-size: 1.05rem; letter-spacing: -0.01em; color: var(--ink); text-decoration: none;
+  }
+  .top nav { display: flex; gap: 1.25rem; font-weight: 500; font-size: 0.95rem; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+
+  /* Hero */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1.15fr; gap: 2.5rem;
+    align-items: center; padding: 2rem 0 3.5rem;
+  }
+  h1 {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800;
+    font-size: clamp(2.2rem, 4.6vw, 3.6rem); line-height: 1.04;
+    letter-spacing: -0.035em; margin: 0 0 1.25rem;
+  }
+  .lede { color: var(--muted); font-size: 1.1rem; max-width: 30rem; margin: 0 0 2rem; }
+
+  .field-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .salary {
+    display: flex; align-items: baseline; gap: 0.15rem;
+    background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
+    padding: 0.55rem 1rem; box-shadow: var(--shadow); max-width: 26rem;
+  }
+  .salary:focus-within { border-color: var(--accent); }
+  .salary span { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 2rem; color: var(--muted); }
   #income {
-    font: inherit; color: var(--pine); background: transparent;
-    border: 0; width: 6.2ch; padding: 0; outline: none;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 2rem;
+    color: var(--ink); background: transparent; border: 0; outline: none;
+    width: 100%; min-width: 0; padding: 0; font-variant-numeric: tabular-nums;
   }
-  .lede { color: var(--muted); max-width: 36rem; margin: 0 0 2.5rem; }
-  .sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; }
-  .sheet-head {
-    display: flex; justify-content: space-between; gap: 1rem;
-    padding: 0.9rem 1.25rem; background: var(--tint);
-    border-bottom: 1px solid var(--rule); font-weight: 700;
+  .salary small { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+  #slider { width: 100%; max-width: 26rem; margin: 1rem 0 0.25rem; accent-color: var(--accent); }
+  .slider-ends { display: flex; justify-content: space-between; max-width: 26rem; color: var(--muted); font-size: 0.85rem; }
+
+  .years { display: inline-flex; background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 4px; margin-top: 1.75rem; }
+  .years button {
+    font: inherit; font-weight: 600; border: 0; background: transparent; color: var(--muted);
+    padding: 0.4rem 1.1rem; border-radius: 999px; cursor: pointer;
   }
-  .sheet-head small { font-weight: 400; color: var(--muted); }
-  .year-field { display: inline-flex; align-items: baseline; border-bottom: 3px solid var(--pine); color: var(--pine); }
-  .year-field::after { content: "\25BE"; font-size: 0.5em; margin-left: 0.15em; pointer-events: none; }
-  .year-field:focus-within { background: var(--tint); }
-  #year {
-    font: inherit; color: var(--pine); background: transparent; border: 0;
-    padding: 0 0.1em; cursor: pointer; appearance: none; -webkit-appearance: none;
+  .years button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+
+  /* Result card */
+  .result {
+    background: var(--surface); border-radius: 24px; padding: 2rem;
+    box-shadow: var(--shadow); border: 1px solid var(--line);
   }
-  #year:focus-visible { outline: 2px solid var(--pine); outline-offset: 3px; }
-  #year option { color: #17324D; font-size: 1rem; }
-  .group {
-    padding: 0.6rem 1.25rem; font-size: 0.8rem; font-weight: 700;
-    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
-    border-bottom: 1px solid var(--rule);
+  .result-label { color: var(--muted); font-weight: 500; margin: 0; }
+  .big {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800;
+    font-size: clamp(2.75rem, 6vw, 4.5rem); line-height: 1.05; letter-spacing: -0.04em;
+    margin: 0.25rem 0 0.75rem; color: var(--ink);
   }
-  ol.lines { list-style: none; margin: 0; padding: 0; counter-reset: line; }
-  ol.lines li {
-    counter-increment: line; display: grid;
-    grid-template-columns: 2.25rem 1fr auto; gap: 0 0.75rem;
-    padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--rule);
+  .per { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.75rem; }
+  .chip {
+    background: var(--soft); border-radius: 999px; padding: 0.3rem 0.8rem;
+    font-size: 0.95rem; color: var(--muted);
   }
-  ol.lines li::before { content: counter(line); color: var(--muted); font-size: 0.85rem; padding-top: 0.15rem; }
-  ol.lines li.group { display: block; padding: 0.6rem 1.25rem; }
-  ol.lines li.group::before { content: none; }
-  ol.lines li.group { counter-increment: none; }
-  ol.lines li:last-child { border-bottom: 0; }
-  .label { font-weight: 500; }
-  .how { grid-column: 2 / 4; color: var(--muted); font-size: 0.875rem; }
-  .amount { font-weight: 700; text-align: right; white-space: nowrap; }
-  li.total { background: var(--tint); }
-  li.total .label, li.total .amount { font-weight: 800; }
-  .rates {
-    display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
-    padding: 0.9rem 1.25rem; border-top: 1px solid var(--rule); color: var(--muted);
+  .chip b { color: var(--ink); font-weight: 700; }
+
+  .bar-title { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .bar-title span:last-child { color: var(--muted); font-weight: 500; }
+  .bar { position: relative; display: flex; gap: 2px; height: 28px; }
+  .seg {
+    height: 100%; min-width: 0; border-radius: 4px; cursor: default;
+    transition: width 0.35s ease, opacity 0.15s ease;
   }
-  .rates b { color: var(--ink); }
-  .status { color: var(--muted); padding: 1.25rem; margin: 0; }
+  .bar.dim .seg:not(.on) { opacity: 0.25; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.9rem; font-size: 0.875rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
+  .tip {
+    position: absolute; bottom: calc(100% + 10px); transform: translateX(-50%);
+    background: var(--ink); color: var(--surface); font-size: 0.85rem; white-space: nowrap;
+    padding: 0.45rem 0.7rem; border-radius: 8px; pointer-events: none; opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .tip.show { opacity: 1; }
+  .tip b { font-weight: 700; }
+
+  .status { color: var(--muted); margin: 0.75rem 0 0; }
   .status.error { color: var(--error); }
-  .notes { margin-top: 2.5rem; color: var(--muted); font-size: 0.925rem; max-width: 38rem; }
-  .notes h2 { color: var(--ink); font-size: 1.05rem; margin: 1.75rem 0 0.4rem; }
-  .notes p, .notes ul { margin: 0 0 0.75rem; }
-  .notes ul { padding-left: 1.2rem; }
-  a { color: var(--pine); text-underline-offset: 2px; }
-  a:focus-visible, #income:focus-visible { outline: 2px solid var(--pine); outline-offset: 3px; }
+  .skeleton { display: inline-block; width: 9ch; height: 0.85em; border-radius: 10px; background: var(--soft); }
+
+  /* Breakdown */
+  .section { padding: 1rem 0 3rem; }
+  h2 {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800;
+    font-size: 1.75rem; letter-spacing: -0.025em; margin: 0 0 0.4rem;
+  }
+  .section > p { color: var(--muted); margin: 0 0 1.5rem; max-width: 40rem; }
+  .sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
+  .group { padding: 0.9rem 1.5rem 0.5rem; font-weight: 700; font-size: 0.95rem; color: var(--muted); border-top: 1px solid var(--line); }
+  .row {
+    display: grid; grid-template-columns: 14px 1fr auto auto; gap: 0.2rem 1rem; align-items: baseline;
+    padding: 0.9rem 1.5rem; border-top: 1px solid var(--line);
+  }
+  .sheet > .row:first-child { border-top: 0; }
+  .row:hover, .row.on { background: var(--soft); }
+  .row .dot { align-self: center; }
+  .row .name { font-weight: 600; }
+  .row .pct { color: var(--muted); font-size: 0.9rem; min-width: 4.5ch; text-align: right; }
+  .row .amt { font-weight: 700; text-align: right; min-width: 10ch; }
+  .row .how { grid-column: 2 / 5; color: var(--muted); font-size: 0.9rem; }
+  .row.total { background: var(--soft); }
+  .row.total .name, .row.total .amt { font-weight: 800; }
+  .row.salary-row .name { font-weight: 700; }
+
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; padding: 0 0 3rem; }
+  .note { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 1.5rem; }
+  .note h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.15rem; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+  .note p, .note ul { color: var(--muted); font-size: 0.95rem; margin: 0 0 0.5rem; }
+  .note ul { padding-left: 1.1rem; }
+  footer { border-top: 1px solid var(--line); padding: 1.5rem 0 2.5rem; color: var(--muted); font-size: 0.9rem; }
+  code { font-size: 0.9em; background: var(--soft); padding: 0.1em 0.4em; border-radius: 6px; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 1.5rem; }
+    .notes { grid-template-columns: 1fr; }
+    .trust { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .result { padding: 1.5rem 1.25rem; border-radius: 20px; }
+    .row { padding: 0.85rem 1.1rem; grid-template-columns: 12px 1fr auto; }
+    .row .pct { display: none; }
+    .row .how { grid-column: 2 / 4; }
+    .group { padding: 0.9rem 1.1rem 0.5rem; }
+    .top nav a.hide-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seg, .tip { transition: none; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1 class="question">
-    If I earn
-    <label class="income-field" for="income"><span>$</span><input id="income" type="text" inputmode="numeric" autocomplete="off" value="75,000" aria-label="Yearly salary in dollars"></label>
-    a year in Ontario in
-    <label class="year-field" for="year"><select id="year" aria-label="Tax year"><option value="2026" selected>2026</option><option value="2025">2025</option></select></label>,
-  </h1>
-  <p class="answer" id="answer" aria-live="polite">&nbsp;</p>
-  <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA and Ontario tax forms, and every calculation is checked by automated tests.</p>
+<div class="band">
+  <svg class="contours" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <path d="M-50 420 C 200 360, 380 470, 620 400 S 1000 300, 1250 360"/>
+      <path d="M-50 450 C 210 390, 390 500, 630 430 S 1010 330, 1250 390"/>
+      <path d="M-50 480 C 220 420, 400 530, 640 460 S 1020 360, 1250 420"/>
+      <path d="M-50 510 C 230 450, 410 560, 650 490 S 1030 390, 1250 450"/>
+      <path d="M-50 540 C 240 480, 420 590, 660 520 S 1040 420, 1250 480"/>
+      <path d="M-50 120 C 150 60, 330 170, 560 110 S 930 20, 1250 80"/>
+      <path d="M-50 150 C 160 90, 340 200, 570 140 S 940 50, 1250 110"/>
+      <path d="M-50 180 C 170 120, 350 230, 580 170 S 950 80, 1250 140"/>
+    </g>
+  </svg>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">Canada Tax Toolkit</a>
+    <nav>
+      <a class="hide-sm" href="#breakdown">Breakdown</a>
+      <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit">GitHub</a>
+    </nav>
+  </header>
 
-  <section class="sheet" aria-label="Pay breakdown">
-    <div class="sheet-head">
-      <span>Your <span id="year-label">2026</span> pay</span>
-      <small>Ontario employee, single</small>
-    </div>
-    <p class="status" id="status">Loading the calculator. This takes a few seconds the first time.</p>
-    <div id="results" hidden>
-      <ol class="lines">
-        <li>
-          <span class="label">Yearly salary</span>
-          <span class="amount" data-k="employment_income"></span>
-        </li>
-        <li class="group">Income tax</li>
-        <li>
-          <span class="label">Federal tax</span>
-          <span class="amount" data-k="federal"></span>
-          <span class="how">Federal brackets (14% to 33%; the lowest rate was 14.5% for 2025), minus credits for the basic personal amount, base CPP, EI and the Canada employment amount.</span>
-        </li>
-        <li>
-          <span class="label">Ontario tax</span>
-          <span class="amount" data-k="ontario"></span>
-          <span class="how">Ontario brackets (5.05% to 13.16%), minus credits for the basic personal amount, base CPP and EI, plus surtax, minus the low-income tax reduction.</span>
-        </li>
-        <li>
-          <span class="label">Ontario Health Premium</span>
-          <span class="amount" data-k="ontario_health_premium"></span>
-          <span class="how">$0 up to $900, based on taxable income.</span>
-        </li>
-        <li class="group">Payroll deductions</li>
-        <li>
-          <span class="label">CPP</span>
-          <span class="amount" data-k="cpp"></span>
-          <span class="how">5.95% of salary between $3,500 and $74,600.</span>
-        </li>
-        <li>
-          <span class="label">CPP2</span>
-          <span class="amount" data-k="cpp2"></span>
-          <span class="how">4% of salary between $74,600 and $85,000.</span>
-        </li>
-        <li>
-          <span class="label">EI</span>
-          <span class="amount" data-k="ei"></span>
-          <span class="how">1.63% of salary up to $68,900.</span>
-        </li>
-        <li class="total">
-          <span class="label">Total deductions</span>
-          <span class="amount" data-k="total_deductions"></span>
-        </li>
-        <li class="total">
-          <span class="label">Take-home pay</span>
-          <span class="amount" data-k="take_home"></span>
-        </li>
-      </ol>
-      <div class="rates">
-        <span>Per month <b data-k="monthly_take_home"></b></span>
-        <span>Share of salary deducted <b data-k="average_rate"></b></span>
+    <section class="hero">
+      <div>
+        <span class="badge"><i></i>Updated for 2025 and 2026 tax years</span>
+        <h1>Your Ontario paycheque, line by line.</h1>
+        <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA, and every calculation is tested.</p>
+
+        <label class="field-label" for="income">Yearly salary</label>
+        <div class="salary">
+          <span aria-hidden="true">$</span>
+          <input id="income" type="text" inputmode="numeric" autocomplete="off" value="75,000">
+          <small>per year</small>
+        </div>
+        <input id="slider" type="range" min="0" max="250000" step="500" value="75000" aria-label="Yearly salary slider">
+        <div class="slider-ends"><span>$0</span><span>$250,000+</span></div>
+
+        <div class="years" role="group" aria-label="Tax year">
+          <button type="button" data-year="2025" aria-pressed="false">2025</button>
+          <button type="button" data-year="2026" aria-pressed="true">2026</button>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <div class="notes">
-    <h2>What this includes</h2>
-    <p>Federal and Ontario income tax for 2025 and 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, employee CPP, CPP2 and EI (including the tax credits and deduction they give you), and the federal Canada employment amount.</p>
-    <h2>What it doesn't include yet</h2>
-    <ul>
-      <li>Other credits and deductions, like RRSP contributions, union dues, tuition or medical expenses.</li>
-      <li>Self-employment income.</li>
-    </ul>
-    <p>This is an educational tool, not tax advice. Confirm with CRA or a tax professional.</p>
-    <h2>How it works</h2>
-    <p>This page runs the same Python code as the <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit">Canada Tax Toolkit on GitHub</a>, right in your browser. Nothing you type is sent anywhere. Found a mistake or want a feature? <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit/issues">Open an issue</a>.</p>
-  </div>
-</main>
+      <div class="result" aria-live="polite">
+        <p class="result-label">You take home</p>
+        <p class="big" id="take-home"><span class="skeleton"></span></p>
+        <div class="per">
+          <span class="chip"><b id="monthly">-</b> a month</span>
+          <span class="chip"><b id="biweekly">-</b> every two weeks</span>
+        </div>
+
+        <div class="bar-title"><span>Where your salary goes</span><span id="deducted"></span></div>
+        <div class="bar" id="bar" role="img" aria-label="Salary split chart">
+          <div class="tip" id="tip"></div>
+        </div>
+        <div class="legend" id="legend"></div>
+        <p class="status" id="status">Loading the calculator. This takes a few seconds the first time.</p>
+      </div>
+    </section>
+</div>
+</div>
+
+<div class="wrap">
+  <main>
+    <section class="trust" aria-label="Why trust these numbers">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div><b>Sourced from CRA</b><span>Every bracket and rate cites its source.</span></div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.5l2.8 2.8L16.5 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Checked against hand calculations</b><span>Automated tests run on every change.</span></div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        <div><b>Private by design</b><span>Runs in your browser. Nothing is sent anywhere.</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="breakdown">
+      <h2>The full breakdown</h2>
+      <p>Every line, with how it's calculated. Hover a line to find it in the chart.</p>
+      <div class="sheet" id="sheet">
+        <div class="row salary-row">
+          <span></span><span class="name">Yearly salary</span><span class="pct"></span><span class="amt" data-k="employment_income">-</span>
+        </div>
+        <div class="group">Income tax</div>
+        <div class="row" data-seg="fed">
+          <span class="dot" style="background: var(--s-fed)"></span><span class="name">Federal tax</span><span class="pct" data-p="federal"></span><span class="amt" data-k="federal">-</span>
+          <span class="how">Federal brackets (14% to 33%; the lowest rate was 14.5% for 2025), minus credits for the basic personal amount, base CPP, EI and the Canada employment amount.</span>
+        </div>
+        <div class="row" data-seg="on">
+          <span class="dot" style="background: var(--s-on)"></span><span class="name">Ontario tax</span><span class="pct" data-p="ontario"></span><span class="amt" data-k="ontario">-</span>
+          <span class="how">Ontario brackets (5.05% to 13.16%), minus credits for the basic personal amount, base CPP and EI, plus surtax, minus the low-income tax reduction.</span>
+        </div>
+        <div class="row" data-seg="ohp">
+          <span class="dot" style="background: var(--s-ohp)"></span><span class="name">Ontario Health Premium</span><span class="pct" data-p="ontario_health_premium"></span><span class="amt" data-k="ontario_health_premium">-</span>
+          <span class="how">$0 up to $900, based on taxable income.</span>
+        </div>
+        <div class="group">Payroll deductions</div>
+        <div class="row" data-seg="cpp">
+          <span class="dot" style="background: var(--s-cpp)"></span><span class="name">CPP and CPP2</span><span class="pct" data-p="cpp_all"></span><span class="amt" data-k="cpp_all">-</span>
+          <span class="how" id="cpp-how">CPP: 5.95% of salary between $3,500 and $74,600. CPP2: 4% of salary between $74,600 and $85,000.</span>
+        </div>
+        <div class="row" data-seg="ei">
+          <span class="dot" style="background: var(--s-ei)"></span><span class="name">Employment Insurance</span><span class="pct" data-p="ei"></span><span class="amt" data-k="ei">-</span>
+          <span class="how" id="ei-how">1.63% of salary up to $68,900.</span>
+        </div>
+        <div class="row total">
+          <span></span><span class="name">Total deductions</span><span class="pct" data-p="total_deductions"></span><span class="amt" data-k="total_deductions">-</span>
+        </div>
+        <div class="row total" data-seg="keep">
+          <span class="dot" style="background: var(--s-keep)"></span><span class="name">Take-home pay</span><span class="pct" data-p="take_home"></span><span class="amt" data-k="take_home">-</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="note">
+        <h3>What's included</h3>
+        <p>Federal and Ontario income tax for 2025 and 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, employee CPP, CPP2 and EI (with the credits and deduction they give you), and the Canada employment amount.</p>
+      </div>
+      <div class="note">
+        <h3>Not included yet</h3>
+        <ul>
+          <li>RRSP contributions, union dues, tuition, medical expenses and other credits or deductions</li>
+          <li>Self-employment income</li>
+        </ul>
+        <p>This is an educational estimate, not tax advice. Confirm with CRA or a tax professional.</p>
+      </div>
+      <div class="note">
+        <h3>How it works</h3>
+        <p>This page runs the same Python code as the <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit">open-source library</a>, right in your browser. Nothing you type is sent anywhere.</p>
+        <p>Install it with <code>pip install canada-tax-toolkit</code>. Spot a mistake? <a href="https://github.com/ronitgupta43-ops/canada-tax-toolkit/issues">Open an issue</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Canada Tax Toolkit by Ronit Gupta. MIT licensed.</footer>
+</div>
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script>
   const money = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" });
-  const pct = new Intl.NumberFormat("en-CA", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 2 });
+  const money0 = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+  const pct = new Intl.NumberFormat("en-CA", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  const SEGMENTS = [
+    { id: "keep", key: "take_home", name: "Take-home pay", color: "--s-keep" },
+    { id: "fed", key: "federal", name: "Federal tax", color: "--s-fed" },
+    { id: "on", key: "ontario", name: "Ontario tax", color: "--s-on" },
+    { id: "ohp", key: "ontario_health_premium", name: "Health Premium", color: "--s-ohp" },
+    { id: "cpp", key: "cpp_all", name: "CPP and CPP2", color: "--s-cpp" },
+    { id: "ei", key: "ei", name: "EI", color: "--s-ei" },
+  ];
+  const PAYROLL_TEXT = {
+    2025: { cpp: "CPP: 5.95% of salary between $3,500 and $71,300. CPP2: 4% of salary between $71,300 and $81,200.", ei: "1.64% of salary up to $65,700." },
+    2026: { cpp: "CPP: 5.95% of salary between $3,500 and $74,600. CPP2: 4% of salary between $74,600 and $85,000.", ei: "1.63% of salary up to $68,900." },
+  };
+
   const input = document.getElementById("income");
-  const yearEl = document.getElementById("year");
+  const slider = document.getElementById("slider");
+  const bar = document.getElementById("bar");
+  const tip = document.getElementById("tip");
+  const legend = document.getElementById("legend");
   const statusEl = document.getElementById("status");
-  const resultsEl = document.getElementById("results");
-  const answerEl = document.getElementById("answer");
+  const yearButtons = document.querySelectorAll(".years button");
+  let year = 2026;
   let calc = null;
   let timer = null;
+  let last = null;
+
+  for (const s of SEGMENTS) {
+    const el = document.createElement("div");
+    el.className = "seg";
+    el.dataset.seg = s.id;
+    el.style.background = `var(${s.color})`;
+    el.style.width = "0";
+    bar.appendChild(el);
+    const l = document.createElement("span");
+    l.innerHTML = `<i class="dot" style="background: var(${s.color})"></i>${s.name}`;
+    legend.appendChild(l);
+  }
 
   function parseIncome(text) {
     const n = Number(String(text).replace(/[^0-9.]/g, ""));
     return Number.isFinite(n) ? n : NaN;
   }
 
-  const mirror = document.createElement("span");
-  mirror.setAttribute("aria-hidden", "true");
-  mirror.style.cssText = "position:absolute;visibility:hidden;white-space:pre;font:inherit;";
-  input.parentNode.appendChild(mirror);
-  function sizeInput() {
-    mirror.textContent = input.value || "0";
-    input.style.width = (mirror.offsetWidth + 6) + "px";
-  }
-
   function render() {
     if (!calc) return;
     const income = parseIncome(input.value);
-    if (!input.value.trim() || isNaN(income)) {
-      resultsEl.hidden = true;
+    if (!input.value.trim() || isNaN(income) || income <= 0) {
       statusEl.hidden = false;
       statusEl.className = "status";
-      statusEl.textContent = "Type your yearly salary to see the breakdown.";
-      answerEl.innerHTML = "&nbsp;";
+      statusEl.textContent = "Type a yearly salary to see your take-home pay.";
       return;
     }
     if (income > 100000000) {
-      resultsEl.hidden = true;
       statusEl.hidden = false;
       statusEl.className = "status error";
       statusEl.textContent = "Enter a salary under $100,000,000.";
       return;
     }
-    const year = Number(yearEl.value);
-    document.getElementById("year-label").textContent = year;
     const py = calc.take_home(income, year);
     const r = py.toJs({ dict_converter: Object.fromEntries });
     py.destroy();
-    for (const el of resultsEl.querySelectorAll("[data-k]")) {
-      const k = el.dataset.k;
-      el.textContent = k === "average_rate" ? pct.format(r[k]) : money.format(r[k]);
+    r.cpp_all = r.cpp + r.cpp2;
+    last = r;
+
+    document.getElementById("take-home").textContent = money.format(r.take_home);
+    document.getElementById("monthly").textContent = money0.format(r.take_home / 12);
+    document.getElementById("biweekly").textContent = money0.format(r.take_home / 26);
+    document.getElementById("deducted").textContent = pct.format(r.total_deductions / income) + " deducted";
+
+    for (const s of SEGMENTS) {
+      bar.querySelector(`[data-seg="${s.id}"]`).style.width = (Math.max(0, r[s.key]) / income * 100) + "%";
     }
-    answerEl.innerHTML = "I take home <strong></strong>, about <strong></strong> a month.";
-    const s = answerEl.querySelectorAll("strong");
-    s[0].textContent = money.format(r.take_home);
-    s[1].textContent = money.format(r.monthly_take_home);
+    for (const el of document.querySelectorAll("[data-k]")) el.textContent = money.format(r[el.dataset.k]);
+    for (const el of document.querySelectorAll("[data-p]")) el.textContent = pct.format(r[el.dataset.p] / income);
+    document.getElementById("cpp-how").textContent = PAYROLL_TEXT[year].cpp;
+    document.getElementById("ei-how").textContent = PAYROLL_TEXT[year].ei;
+    bar.setAttribute("aria-label", "Salary split: " + SEGMENTS.map(s => `${s.name} ${money.format(r[s.key])}`).join(", "));
     statusEl.hidden = true;
-    resultsEl.hidden = false;
   }
 
+  function schedule() { clearTimeout(timer); timer = setTimeout(render, 120); }
+
   input.addEventListener("input", () => {
-    sizeInput();
-    clearTimeout(timer);
-    timer = setTimeout(render, 150);
+    const n = parseIncome(input.value);
+    if (!isNaN(n)) slider.value = Math.min(n, 250000);
+    schedule();
   });
-  yearEl.addEventListener("change", render);
   input.addEventListener("blur", () => {
     const n = parseIncome(input.value);
-    if (input.value.trim() && !isNaN(n)) {
-      input.value = n.toLocaleString("en-CA", { maximumFractionDigits: 2 });
-      sizeInput();
-    }
+    if (input.value.trim() && !isNaN(n)) input.value = n.toLocaleString("en-CA", { maximumFractionDigits: 2 });
+  });
+  slider.addEventListener("input", () => {
+    input.value = Number(slider.value).toLocaleString("en-CA");
+    schedule();
+  });
+  yearButtons.forEach(b => b.addEventListener("click", () => {
+    year = Number(b.dataset.year);
+    yearButtons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  }));
+
+  function highlight(id) {
+    bar.classList.toggle("dim", !!id);
+    document.querySelectorAll(".seg, .row[data-seg]").forEach(el => el.classList.toggle("on", el.dataset.seg === id));
+  }
+  bar.addEventListener("mousemove", e => {
+    const seg = e.target.closest(".seg");
+    if (!seg || !last) { tip.classList.remove("show"); highlight(null); return; }
+    const s = SEGMENTS.find(x => x.id === seg.dataset.seg);
+    const income = last.employment_income;
+    tip.innerHTML = `${s.name}: <b>${money.format(last[s.key])}</b> (${pct.format(last[s.key] / income)})`;
+    const box = bar.getBoundingClientRect();
+    const x = Math.min(Math.max(e.clientX - box.left, 110), box.width - 110);
+    tip.style.left = x + "px";
+    tip.classList.add("show");
+    highlight(s.id);
+  });
+  bar.addEventListener("mouseleave", () => { tip.classList.remove("show"); highlight(null); });
+  document.querySelectorAll(".row[data-seg]").forEach(row => {
+    row.addEventListener("mouseenter", () => highlight(row.dataset.seg));
+    row.addEventListener("mouseleave", () => highlight(null));
   });
 
   async function start() {
@@ -276,10 +551,6 @@
       console.error(err);
     }
   }
-
-  sizeInput();
-  if (document.fonts) document.fonts.ready.then(sizeInput);
-  window.addEventListener("load", sizeInput);
   start();
 </script>
 </body>
