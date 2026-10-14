@@ -77,7 +77,7 @@
       radial-gradient(60rem 30rem at 85% 10%, rgba(57, 135, 229, 0.45), transparent 60%),
       radial-gradient(40rem 26rem at 5% 95%, rgba(27, 175, 122, 0.30), transparent 60%),
       linear-gradient(90deg, rgba(14, 26, 43, 0.97) 0%, rgba(14, 26, 43, 0.88) 45%, rgba(14, 26, 43, 0.72) 100%),
-      url("hero.jpg.jpg") center / cover no-repeat,
+      url("images/hero.jpg") center / cover no-repeat,
       #0E1A2B;
     color: #EEF2F7;
     padding-bottom: 5rem;
@@ -308,18 +308,11 @@
     position: relative; overflow: hidden; isolation: isolate;
     min-height: 23rem; border-radius: 22px; padding: 1.75rem;
     display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF;
-    background:
-      radial-gradient(22rem 14rem at 85% 0%, rgba(255,255,255,0.18), transparent 65%),
-      var(--tone);
-    justify-content: flex-start;
+    background: var(--photo) center / cover no-repeat, var(--tone);
   }
-  .pcard .pill { width: 100%; height: auto; max-height: 9.5rem; margin-bottom: auto; padding-bottom: 1.5rem; }
   .pcard::before {
     content: ""; position: absolute; inset: 0; z-index: -1;
-    background-image: radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px);
-    background-size: 18px 18px;
-    mask-image: linear-gradient(to bottom, black, transparent 70%);
-    -webkit-mask-image: linear-gradient(to bottom, black, transparent 70%);
+    background: linear-gradient(180deg, transparent 0%, var(--tone-a) 50%, var(--tone) 100%);
   }
   .pcard h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 0.6rem; }
   .pcard p { margin: 0 0 1.25rem; color: rgba(255,255,255,0.88); }
@@ -330,15 +323,6 @@
   @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:hover { transform: none; } }
 
 
-  /* Photo version of the cards (used when the photo loads) */
-  .pcard.has-photo {
-    background: var(--photo) center / cover no-repeat, var(--tone);
-  }
-  .pcard.has-photo::before {
-    background-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--tone-a) 50%, var(--tone) 100%);
-    background-size: auto; mask-image: none; -webkit-mask-image: none;
-  }
-  .pcard.has-photo .pill { visibility: hidden; }
 
   @media (max-width: 860px) {
     .refund-grid { grid-template-columns: 1fr; }
@@ -458,61 +442,17 @@
       <h2 id="audience-title">Made for real paycheques</h2>
       <p>Pay in Canada is rarely the same every week. Pick the situation that sounds like yours.</p>
       <div class="cards">
-        <article class="pcard pcard-blue" data-photo="hourly.jpg.jpg">
-          <svg class="pill" viewBox="0 0 320 150" aria-hidden="true">
-            <g fill="#FFFFFF">
-              <rect x="20" y="70" width="30" height="70" rx="6" opacity="0.55"/>
-              <rect x="62" y="30" width="30" height="110" rx="6" opacity="0.9"/>
-              <rect x="104" y="95" width="30" height="45" rx="6" opacity="0.4"/>
-              <rect x="146" y="50" width="30" height="90" rx="6" opacity="0.7"/>
-              <rect x="188" y="110" width="30" height="30" rx="6" opacity="0.3"/>
-            </g>
-            <circle cx="270" cy="52" r="34" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.85"/>
-            <path d="M270 32v20l14 10" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-            <path d="M14 143h290" stroke="#FFFFFF" stroke-width="3" opacity="0.35" stroke-linecap="round"/>
-          </svg>
+        <article class="pcard pcard-blue" style="--photo: url('images/hourly.jpg')">
           <h3>Hours change, or took unpaid time off?</h3>
           <p>Each paycheque is taxed as if you earn that much every pay period. Find out how much could come back when you file.</p>
           <a class="btn btn-light" href="#refund">Estimate my refund</a>
         </article>
-        <article class="pcard pcard-green" data-photo="two-jobs.jpg.jpg">
-          <svg class="pill" viewBox="0 0 320 150" aria-hidden="true">
-            <g opacity="0.55">
-              <rect x="40" y="22" width="110" height="120" rx="14" fill="#FFFFFF"/>
-              <circle cx="95" cy="62" r="18" fill="#0f6b4a"/>
-              <rect x="62" y="94" width="66" height="9" rx="4.5" fill="#0f6b4a"/>
-              <rect x="72" y="112" width="46" height="8" rx="4" fill="#0f6b4a"/>
-            </g>
-            <g>
-              <rect x="170" y="10" width="110" height="120" rx="14" fill="#FFFFFF"/>
-              <circle cx="225" cy="50" r="18" fill="#0f6b4a"/>
-              <rect x="192" y="82" width="66" height="9" rx="4.5" fill="#0f6b4a"/>
-              <rect x="202" y="100" width="46" height="8" rx="4" fill="#0f6b4a"/>
-            </g>
-            <circle cx="160" cy="78" r="17" fill="#3DDC97"/>
-            <path d="M160 69v18M151 78h18" stroke="#0f6b4a" stroke-width="5" stroke-linecap="round"/>
-          </svg>
+        <article class="pcard pcard-green" style="--photo: url('images/two-jobs.jpg')">
           <h3>Worked two jobs this year?</h3>
           <p>Each employer takes CPP and EI from zero, so you can overpay. See what you're owed back.</p>
           <a class="btn btn-light" href="#refund">Check CPP and EI</a>
         </article>
-        <article class="pcard pcard-violet" data-photo="job-offer.jpg.jpg">
-          <svg class="pill" viewBox="0 0 320 150" aria-hidden="true">
-            <g opacity="0.55">
-              <rect x="30" y="20" width="100" height="125" rx="12" fill="#FFFFFF"/>
-              <text x="80" y="78" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="34" fill="#3f3399">$</text>
-              <rect x="50" y="98" width="60" height="8" rx="4" fill="#3f3399"/>
-              <rect x="58" y="114" width="44" height="7" rx="3.5" fill="#3f3399"/>
-            </g>
-            <g>
-              <rect x="190" y="8" width="100" height="125" rx="12" fill="#FFFFFF"/>
-              <text x="240" y="66" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="34" fill="#3f3399">$$</text>
-              <rect x="210" y="86" width="60" height="8" rx="4" fill="#3f3399"/>
-              <rect x="218" y="102" width="44" height="7" rx="3.5" fill="#3f3399"/>
-            </g>
-            <circle cx="160" cy="76" r="20" fill="#FFFFFF" opacity="0.95"/>
-            <text x="160" y="83" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="16" fill="#3f3399">vs</text>
-          </svg>
+        <article class="pcard pcard-violet" style="--photo: url('images/job-offer.jpg')">
           <h3>Comparing job offers?</h3>
           <p>A higher salary doesn't always mean what you think. See the real take-home difference, per month.</p>
           <a class="btn btn-light" href="#top">Compare salaries</a>
@@ -804,15 +744,6 @@
   rfIds.forEach(id => rf[id].addEventListener("input", () => { clearTimeout(rf.t); rf.t = setTimeout(renderRefund, 150); }));
 
 
-  // Use a card's photo if it exists; otherwise keep the built-in illustration
-  document.querySelectorAll(".pcard[data-photo]").forEach(card => {
-    const img = new Image();
-    img.onload = () => {
-      card.style.setProperty("--photo", `url("${card.dataset.photo}")`);
-      card.classList.add("has-photo");
-    };
-    img.src = card.dataset.photo;
-  });
 
   function highlight(id) {
     bar.classList.toggle("dim", !!id);
