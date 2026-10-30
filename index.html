@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ontario Take-Home Pay Calculator 2025 and 2026 · Canada Tax Toolkit</title>
-<meta name="description" content="Free, open-source Ontario take-home pay calculator for 2025 and 2026. See federal tax, Ontario tax, the Ontario Health Premium, CPP and EI, with every line explained.">
+<title>Ontario, BC and Alberta Take-Home Pay Calculator · Canada Tax Toolkit</title>
+<meta name="description" content="Free, open-source take-home pay and tax refund calculator for Ontario, BC and Alberta. See federal tax, provincial tax, CPP and EI, with every line explained.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -170,6 +170,9 @@
     font: inherit; font-weight: 600; border: 0; background: transparent; color: var(--muted);
     padding: 0.4rem 1.1rem; border-radius: 999px; cursor: pointer;
   }
+  .years button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .provs { margin-right: 0.5rem; }
+  .row[hidden], .legend span[hidden] { display: none; }
   .years button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
 
   /* Result card */
@@ -378,8 +381,8 @@
 
     <section class="hero">
       <div>
-        <span class="badge"><i></i>Updated for 2025 and 2026 tax years</span>
-        <h1>Your Ontario paycheque, line by line.</h1>
+        <span class="badge"><i></i>Now with BC and Alberta</span>
+        <h1>Your paycheque, line by line.</h1>
         <p class="lede">A free, open-source take-home pay calculator that shows its work. Every rate comes from CRA, and every calculation is tested.</p>
 
         <div class="ctas">
@@ -396,6 +399,11 @@
         <input id="slider" type="range" min="0" max="250000" step="500" value="75000" aria-label="Yearly salary slider">
         <div class="slider-ends"><span>$0</span><span>$250,000+</span></div>
 
+        <div class="years provs" role="group" aria-label="Province">
+          <button type="button" data-prov="ON" aria-pressed="true">Ontario</button>
+          <button type="button" data-prov="BC" aria-pressed="false">BC</button>
+          <button type="button" data-prov="AB" aria-pressed="false">Alberta</button>
+        </div>
         <div class="years" role="group" aria-label="Tax year">
           <button type="button" data-year="2025" aria-pressed="false">2025</button>
           <button type="button" data-year="2026" aria-pressed="true">2026</button>
@@ -473,8 +481,8 @@
           <span class="how">Federal brackets (14% to 33%; the lowest rate was 14.5% for 2025), minus credits for the basic personal amount, base CPP, EI and the Canada employment amount.</span>
         </div>
         <div class="row" data-seg="on">
-          <span class="dot" style="background: var(--s-on)"></span><span class="name">Ontario tax</span><span class="pct" data-p="ontario"></span><span class="amt" data-k="ontario">-</span>
-          <span class="how">Ontario brackets (5.05% to 13.16%), minus credits for the basic personal amount, base CPP and EI, plus surtax, minus the low-income tax reduction.</span>
+          <span class="dot" style="background: var(--s-on)"></span><span class="name" id="prov-name">Ontario tax</span><span class="pct" data-p="provincial"></span><span class="amt" data-k="provincial">-</span>
+          <span class="how" id="prov-how">Ontario brackets (5.05% to 13.16%), minus credits for the basic personal amount, base CPP and EI, plus surtax, minus the low-income tax reduction.</span>
         </div>
         <div class="row" data-seg="ohp">
           <span class="dot" style="background: var(--s-ohp)"></span><span class="name">Ontario Health Premium</span><span class="pct" data-p="ontario_health_premium"></span><span class="amt" data-k="ontario_health_premium">-</span>
@@ -562,7 +570,7 @@
     <section class="notes">
       <div class="note">
         <h3>What's included</h3>
-        <p>Federal and Ontario income tax for 2025 and 2026, the Ontario surtax, the low-income tax reduction, the Ontario Health Premium, employee CPP, CPP2 and EI (with the credits and deduction they give you), and the Canada employment amount.</p>
+        <p>Federal and provincial income tax for Ontario (2025 and 2026), BC and Alberta (2026), including the Ontario surtax, Health Premium and tax reduction and the BC tax reduction; employee CPP, CPP2 and EI (with the credits and deduction they give you); and the Canada employment amount.</p>
       </div>
       <div class="note">
         <h3>Not included yet</h3>
@@ -592,7 +600,7 @@
   const SEGMENTS = [
     { id: "keep", key: "take_home", name: "Take-home pay", color: "--s-keep" },
     { id: "fed", key: "federal", name: "Federal tax", color: "--s-fed" },
-    { id: "on", key: "ontario", name: "Ontario tax", color: "--s-on" },
+    { id: "on", key: "provincial", name: "Provincial tax", color: "--s-on" },
     { id: "ohp", key: "ontario_health_premium", name: "Health Premium", color: "--s-ohp" },
     { id: "cpp", key: "cpp_all", name: "CPP and CPP2", color: "--s-cpp" },
     { id: "ei", key: "ei", name: "EI", color: "--s-ei" },
@@ -608,7 +616,7 @@
   const tip = document.getElementById("tip");
   const legend = document.getElementById("legend");
   const statusEl = document.getElementById("status");
-  const yearButtons = document.querySelectorAll(".years button");
+  const yearButtons = document.querySelectorAll(".years:not(.provs) button");
   let year = 2026;
   let calc = null;
   let timer = null;
@@ -623,6 +631,7 @@
     bar.appendChild(el);
     const l = document.createElement("span");
     l.innerHTML = `<i class="dot" style="background: var(${s.color})"></i>${s.name}`;
+    l.dataset.seg = s.id;
     legend.appendChild(l);
   }
 
@@ -646,7 +655,7 @@
       statusEl.textContent = "Enter a salary under $100,000,000.";
       return;
     }
-    const py = calc.take_home(income, year);
+    const py = calc.take_home(income, year, prov);
     const r = py.toJs({ dict_converter: Object.fromEntries });
     py.destroy();
     r.cpp_all = r.cpp + r.cpp2;
@@ -683,6 +692,26 @@
     input.value = Number(slider.value).toLocaleString("en-CA");
     schedule();
   });
+  // Province: BC and Alberta have 2026 rates only
+  const PROV = {
+    ON: ["Ontario tax", "Ontario brackets (5.05% to 13.16%), minus credits for the basic personal amount, base CPP and EI, plus surtax, minus the low-income tax reduction."],
+    BC: ["BC tax", "BC brackets (5.60% to 20.50%), minus credits for the basic personal amount, base CPP and EI, minus the BC tax reduction."],
+    AB: ["Alberta tax", "Alberta brackets (8% to 15%), minus credits for the basic personal amount, base CPP and EI."],
+  };
+  let prov = "ON";
+  const provButtons = document.querySelectorAll(".provs button");
+  const y2025 = document.querySelector('[data-year="2025"]');
+  provButtons.forEach(b => b.addEventListener("click", () => {
+    prov = b.dataset.prov;
+    provButtons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    document.getElementById("prov-name").textContent = PROV[prov][0];
+    document.getElementById("prov-how").textContent = PROV[prov][1];
+    document.querySelectorAll('[data-seg="ohp"]:not(.seg)').forEach(el => el.hidden = prov !== "ON");
+    y2025.disabled = prov !== "ON";
+    if (y2025.disabled && year === 2025) document.querySelector('[data-year="2026"]').click();
+    else { render(); renderRefund(); }
+  }));
+
   yearButtons.forEach(b => b.addEventListener("click", () => {
     year = Number(b.dataset.year);
     yearButtons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
@@ -712,7 +741,7 @@
     const deducted = ytdTax + pays * num(rf["pay-tax"]);
     const cpp = rf["cpp-ded"].value.trim() ? num(rf["cpp-ded"]) : null;
     const ei = rf["ei-ded"].value.trim() ? num(rf["ei-ded"]) : null;
-    const py = calc.refund_estimate(income, deducted, year, cpp, ei);
+    const py = calc.refund_estimate(income, deducted, year, cpp, ei, prov);
     const r = py.toJs({ dict_converter: Object.fromEntries });
     py.destroy();
     const total = r.total_refund;
