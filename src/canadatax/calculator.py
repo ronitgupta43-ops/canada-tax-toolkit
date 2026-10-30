@@ -1,6 +1,6 @@
 """Federal and Ontario personal income tax calculator."""
 
-from .rates import FEDERAL, ONTARIO, PAYROLL
+from .rates import FEDERAL, ONTARIO, PAYROLL, PROVINCES
 
 
 def _rates(table, year):
@@ -70,6 +70,23 @@ def ontario_tax(taxable_income, year=2026, other_credits=0):
     return round(tax - reduction, 2)
 
 
+def provincial_tax(taxable_income, year=2026, province="ON", other_credits=0):
+    """Provincial income tax after credits for ON, BC or AB."""
+    if province == "ON":
+        return ontario_tax(taxable_income, year, other_credits)
+    if province not in PROVINCES:
+        raise ValueError(f"Province must be one of {sorted(PROVINCES)}")
+    r = _rates(PROVINCES[province], year)
+    gross = bracket_tax(taxable_income, r["brackets"])
+    # ponytail: skips Alberta's 2% supplemental credit on credits over $60,000 (rare)
+    tax = max(0.0, gross - (r["bpa"] + other_credits) * r["credit_rate"])
+    if "low_income_reduction" in r:  # BC tax reduction
+        amount, threshold, rate = r["low_income_reduction"]
+        reduction = max(0.0, amount - rate * max(0.0, taxable_income - threshold))
+        tax -= min(reduction, tax)
+    return round(tax, 2)
+
+
 def ontario_health_premium(taxable_income, year=2026):
     """Ontario Health Premium: $0 up to $900, based on taxable income.
 
@@ -108,28 +125,34 @@ def ei_premium(employment_income, year=2026):
     return round(min(employment_income, r["ei_max_insurable"]) * r["ei_rate"], 2)
 
 
-def total_tax(taxable_income, year=2026, other_credits=0, federal_only_credits=0):
-    """Summary of federal + Ontario tax for one taxable income.
+def total_tax(taxable_income, year=2026, other_credits=0, federal_only_credits=0, province="ON"):
+    """Summary of federal + provincial tax for one taxable income.
 
-    other_credits: credit amounts claimed both federally and in Ontario
+    other_credits: credit amounts claimed both federally and provincially
     federal_only_credits: credit amounts claimed only federally
+    province: "ON", "BC" or "AB"
     """
     fed_credits = other_credits + federal_only_credits
 
+    def premium(income):
+        return ontario_health_premium(income, year) if province == "ON" else 0.0
+
     def tax_at(income):
         return (federal_tax(income, year, fed_credits)
-                + ontario_tax(income, year, other_credits)
-                + ontario_health_premium(income, year))
+                + provincial_tax(income, year, province, other_credits)
+                + premium(income))
 
     fed = federal_tax(taxable_income, year, fed_credits)
-    on = ontario_tax(taxable_income, year, other_credits)
-    ohp = ontario_health_premium(taxable_income, year)
-    total = round(fed + on + ohp, 2)
+    prov = provincial_tax(taxable_income, year, province, other_credits)
+    ohp = premium(taxable_income)
+    total = round(fed + prov + ohp, 2)
     return {
         "year": year,
+        "province": province,
         "income": taxable_income,
         "federal": fed,
-        "ontario": on,
+        "provincial": prov,
+        "ontario": prov,  # kept for code written before other provinces
         "ontario_health_premium": ohp,
         "total": total,
         "after_tax_income": round(taxable_income - total, 2),
@@ -144,8 +167,8 @@ def canada_employment_amount(employment_income, year=2026):
     return min(employment_income, r["employment_amount"])
 
 
-def take_home(employment_income, year=2026):
-    """Take-home pay for an Ontario employee: income tax, CPP and EI.
+def take_home(employment_income, year=2026, province="ON"):
+    """Take-home pay for an employee in ON, BC or AB: income tax, CPP and EI.
 
     How CPP and EI affect income tax:
       - the enhanced part of CPP and all of CPP2 are deducted from income
@@ -157,14 +180,17 @@ def take_home(employment_income, year=2026):
     taxable = round(employment_income - c["enhanced"] - c["cpp2"], 2)
     credits = c["base"] + ei
     employment = canada_employment_amount(employment_income, year)
-    t = total_tax(taxable, year, other_credits=credits, federal_only_credits=employment)
+    t = total_tax(taxable, year, other_credits=credits, federal_only_credits=employment,
+                  province=province)
     deductions = round(t["total"] + c["cpp"] + c["cpp2"] + ei, 2)
     return {
         "year": year,
+        "province": province,
         "employment_income": employment_income,
         "taxable_income": taxable,
         "federal": t["federal"],
-        "ontario": t["ontario"],
+        "provincial": t["provincial"],
+        "ontario": t["provincial"],
         "ontario_health_premium": t["ontario_health_premium"],
         "income_tax": t["total"],
         "cpp": c["cpp"],
@@ -178,8 +204,8 @@ def take_home(employment_income, year=2026):
 
 
 def refund_estimate(employment_income, income_tax_deducted, year=2026,
-                    cpp_deducted=None, ei_deducted=None):
-    """Estimate a tax refund (or balance owing) for an Ontario employee.
+                    cpp_deducted=None, ei_deducted=None, province="ON"):
+    """Estimate a tax refund (or balance owing) for an employee in ON, BC or AB.
 
     Payroll deducts tax from each paycheque as if you'd earn that amount
     every pay period all year. If your hours change, you start partway
@@ -194,7 +220,7 @@ def refund_estimate(employment_income, income_tax_deducted, year=2026,
 
     A positive refund means money back; negative means a balance owing.
     """
-    r = take_home(employment_income, year)
+    r = take_home(employment_income, year, province)
     tax_owed = r["income_tax"]
     tax_refund = round(income_tax_deducted - tax_owed, 2)
 
