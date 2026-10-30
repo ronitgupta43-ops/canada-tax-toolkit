@@ -91,6 +91,42 @@ ONTARIO = {
     },
 }
 
+BC = {
+    2026: {
+        # Source: EY on BC Budget 2026 (lowest rate 5.06% -> 5.60% from Jan 1, 2026);
+        # BC government (basic personal amount); BC tax reduction figures
+        "brackets": [
+            (50_363, 0.056),
+            (100_728, 0.077),
+            (115_648, 0.105),
+            (140_430, 0.1229),
+            (190_405, 0.147),
+            (265_545, 0.168),
+            (None, 0.205),
+        ],
+        "bpa": 13_216,
+        "credit_rate": 0.056,
+        # BC tax reduction: (max amount, income threshold, phase-out rate)
+        "low_income_reduction": (690, 25_570, 0.0356),
+    },
+}
+
+ALBERTA = {
+    2026: {
+        # Source: TaxTips.ca Alberta 2026 rates; KPMG 2026 credit table
+        "brackets": [
+            (61_200, 0.08),
+            (154_259, 0.10),
+            (185_111, 0.12),
+            (246_813, 0.13),
+            (370_220, 0.14),
+            (None, 0.15),
+        ],
+        "bpa": 22_769,
+        "credit_rate": 0.08,
+    },
+}
+
 # Employee payroll contributions: CPP and EI
 # Source: CRA 2026 CPP and EI rates and maximums
 PAYROLL = {
@@ -117,3 +153,5 @@ PAYROLL = {
         "ei_rate": 0.0163,        # EI premiums earn a tax credit
     },
 }
+
+PROVINCES = {"ON": ONTARIO, "BC": BC, "AB": ALBERTA}
