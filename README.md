@@ -1,41 +1,45 @@
 # Canada Tax Toolkit 🇨🇦
 
-Simple, transparent Python tools for Canadian personal income tax — starting with **federal + Ontario** for the **2026** tax year.
+Ontario take-home pay and tax refund calculator for **2025 and 2026**: federal and Ontario tax, the Ontario Health Premium, CPP, CPP2 and EI. Every rate comes from CRA and lives in one readable file (`src/canadatax/rates.py`), and every calculation is checked against hand-worked examples.
 
-Every rate lives in one readable file (`src/canadatax/rates.py`), and every calculation is tested against published worked examples.
 **👉 Try it online: [ronitgupta43-ops.github.io/canada-tax-toolkit](https://ronitgupta43-ops.github.io/canada-tax-toolkit/)**
 
 ## Quick start
 
 ```bash
-git clone https://github.com/ronitgupta43-ops/canada-tax-toolkit.git
-cd canada-tax-toolkit
 pip install canada-tax-toolkit
 python -m canadatax 75000
 ```
 
 ```python
-from canadatax import total_tax
-print(total_tax(75_000))
+from canadatax import take_home, refund_estimate
+
+take_home(75_000, 2026)                  # take-home pay with every deduction
+refund_estimate(47_274.45, 6_127.12)     # income for the year, income tax deducted
 ```
 
-## What's included (v0.1)
+## Use it with Claude Code
 
-- 2026 federal brackets (14% lowest rate) and basic personal amount, including the high-income phase-out
-- 2026 Ontario brackets, basic personal amount and two-tier surtax
-- Average and marginal tax rates
-- Command-line tool
-- Ontario low-income tax reduction and Ontario Health Premium
-- Free web calculator that runs in your browser
+```
+/plugin marketplace add ronitgupta43-ops/canada-tax-toolkit
+/plugin install canada-tax@canada-tax-toolkit
+```
+
+Adds three skills: take-home pay, tax refund estimate, and job offer comparison.
+
+## What's included
+
+- Federal and Ontario income tax for 2025 and 2026, including the Ontario surtax and low-income tax reduction
+- Ontario Health Premium
+- CPP, CPP2 and EI, with the tax credits and deduction they give you
+- Canada employment amount
+- Refund estimator, including CPP/EI overpaid with more than one employer
+- Free web calculator that runs the same Python code in your browser
 
 ## Roadmap — contributions welcome!
 
-- [x] Ontario tax reduction (low-income)
-- [x] Ontario Health Premium
-- [x] CPP / EI contributions and credits
-- [x] 2025 rates (with the blended 14.5% federal rate)
 - [ ] Other provinces (BC, Alberta, Quebec…)
-- [ ] RRSP deduction "what if" calculator
+- [ ] RRSP "what if" calculator
 
 ## Disclaimer
 
