@@ -1,1 +1,9 @@
-{"name":"canada-tax","version":"0.4.0","description":"Ontario take-home pay, tax refund estimates and job offer comparisons for 2025 and 2026","author":{"name":"Ronit Gupta"},"homepage":"https://ronitgupta43-ops.github.io/canada-tax-toolkit/","repository":"https://github.com/ronitgupta43-ops/canada-tax-toolkit","license":"MIT"}
+{
+  "name": "canada-tax",
+  "version": "0.5.0",
+  "description": "Take-home pay, tax refund estimates and job offer comparisons for Ontario, BC and Alberta",
+  "author": { "name": "Ronit Gupta" },
+  "homepage": "https://ronitgupta43-ops.github.io/canada-tax-toolkit/",
+  "repository": "https://github.com/ronitgupta43-ops/canada-tax-toolkit",
+  "license": "MIT"
+}
