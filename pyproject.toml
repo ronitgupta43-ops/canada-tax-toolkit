@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "canada-tax-toolkit"
-version = "0.4.0"
-description = "Ontario take-home pay calculator: federal and Ontario tax, Health Premium, CPP and EI"
+version = "0.5.0"
+description = "Take-home pay and tax refund calculator for Ontario, BC and Alberta: federal and provincial tax, CPP and EI"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "Ronit Gupta"}]
-requires-python = ">=3.9"
-keywords = ["tax", "canada", "ontario", "cra", "finance"]
+requires-python = ">=3.10"
+keywords = ["tax", "canada", "ontario", "british-columbia", "alberta", "cra", "finance"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
