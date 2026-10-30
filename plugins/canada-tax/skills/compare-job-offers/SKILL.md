@@ -1,9 +1,9 @@
 ---
 name: compare-job-offers
-description: Compare two or more Ontario salaries or job offers by real take-home pay per year and per month after tax, CPP and EI. Use for "is $X vs $Y worth it", "what does a raise to $X really give me".
+description: Compare two or more Ontario, BC or Alberta salaries or job offers by real take-home pay per year and per month after tax, CPP and EI. Use for "is $X vs $Y worth it", "what does a raise to $X really give me".
 ---
 
-# Compare Ontario job offers
+# Compare job offers (Ontario, BC, Alberta)
 
 ## Setup (once per session)
 
@@ -22,4 +22,4 @@ for s in (60000, 68000):
 
 Report a small table: salary, take-home per year, per month, and the take-home difference. Also give the share of each extra dollar kept: take-home difference ÷ salary difference.
 
-Salary only. Benefits, pension matching and commute costs aren't included, so mention them if the offers differ. It's an estimate, not tax advice.
+For a move between provinces, pass each offer's province as the third argument ("ON", "BC", "AB"). Salary only. Benefits, pension matching and commute costs aren't included, so mention them if the offers differ. It's an estimate, not tax advice.
