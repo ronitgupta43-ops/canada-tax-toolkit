@@ -1,1 +1,28 @@
-{"name":"canada-tax-toolkit","owner":{"name":"Ronit Gupta"},"metadata":{"description":"Ontario take-home pay, tax refund and job offer skills, backed by a tested Python library"},"plugins":[{"name":"canada-tax","description":"Ontario take-home pay, tax refund estimates and job offer comparisons for 2025 and 2026","source":"./plugins/canada-tax","category":"finance","keywords":["tax","canada","ontario","payroll","cpp","ei","refund"]}]}
+{
+  "name": "canada-tax-toolkit",
+  "owner": {
+    "name": "Ronit Gupta"
+  },
+  "metadata": {
+    "description": "Ontario, BC and Alberta take-home pay, tax refund and job offer skills, backed by a tested Python library"
+  },
+  "plugins": [
+    {
+      "name": "canada-tax",
+      "description": "Take-home pay, tax refund estimates and job offer comparisons for Ontario, BC and Alberta",
+      "source": "./plugins/canada-tax",
+      "category": "finance",
+      "keywords": [
+        "tax",
+        "canada",
+        "ontario",
+        "british-columbia",
+        "alberta",
+        "payroll",
+        "cpp",
+        "ei",
+        "refund"
+      ]
+    }
+  ]
+}
